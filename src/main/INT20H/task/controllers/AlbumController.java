@@ -1,7 +1,7 @@
 package INT20H.task.controllers;
 
 import INT20H.task.configs.Configurations;
-import INT20H.task.services.interfaces.FlickrService;
+import INT20H.task.services._interfaces.FlickrService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,7 +19,7 @@ public class AlbumController {
     }
 
     @GetMapping("/getAllImages")
-    public List<byte[]> getAllImages(@RequestParam(name = "page", defaultValue = "0", required = false) int page){
+    public List<String> getAllImages(@RequestParam(name = "page", defaultValue = "0", required = false) int page){
         return flickrService.getImagesFromAlbumOrByTag(Configurations.tag, Configurations.albumId, page);
     }
 }
