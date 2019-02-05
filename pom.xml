@@ -16,7 +16,7 @@
 	<description>Test task for INT20H hackathon</description>
 
 	<properties>
-		<java.version>8</java.version>
+		<java.version>11</java.version>
 	</properties>
 
 	<dependencies>

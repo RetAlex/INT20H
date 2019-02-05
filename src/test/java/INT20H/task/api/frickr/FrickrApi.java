@@ -5,14 +5,10 @@ import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.FlickrException;
 import com.flickr4java.flickr.REST;
 import com.flickr4java.flickr.photos.*;
-import com.flickr4java.flickr.tags.ClusterList;
-import com.flickr4java.flickr.tags.RelatedTagsList;
-import com.flickr4java.flickr.tags.TagRaw;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Collection;
 import java.util.Iterator;
 
 public class FrickrApi {
