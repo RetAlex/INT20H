@@ -7,6 +7,7 @@ import java.util.List;
 
 @Service
 public class FlickrServiceImpl implements FlickrService {
+
     @Override
     public List<String> getImagesFromAlbumOrByTag(String albumId, String tag, int page) {
         return null;
