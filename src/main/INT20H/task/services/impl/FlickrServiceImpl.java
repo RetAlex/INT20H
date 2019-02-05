@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.lang.instrument.Instrumentation;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,13 +29,14 @@ public class FlickrServiceImpl implements FlickrService {
     private @Value("${flickr.api.key}") String apiKey;
     private @Value("${flickr.api.secret}") String apiSecret;
     private @Value("${flickr.photoset.id}") String photosetId;
+    private @Value("${flickr.photoset.tag}") String tag;
     private @Value("${flickr.photoset.limit}") int photoLimit;
 
-//    @AfterContextInitilized TODO implement
+    //    @AfterContextInitilized TODO implement
     @PostConstruct //test
     public void loadCache() throws Exception {
         List<String> imagesUrlFromAlbum = getImagesUrlFromAlbum(photosetId, ZERO, Integer.MAX_VALUE);
-        List<String> imagesUrlByTag = getImagesUrlByTag(photosetId, ZERO, Integer.MAX_VALUE);
+        List<String> imagesUrlByTag = getImagesUrlByTag(tag, ZERO, Integer.MAX_VALUE);
         imagesUrlFromAlbum.removeAll(imagesUrlByTag);
         imagesUrlFromAlbum.addAll(imagesUrlByTag);
 
@@ -43,7 +45,7 @@ public class FlickrServiceImpl implements FlickrService {
     }
 
     @Override
-    public List<String> getAllImagesUrl(String tag, String albumId, int page) {
+    public List<String> getAllImagesUrl(int page) {
         int toIndex = photoLimit * (page + 1) > listOfUrl.size() ? listOfUrl.size() : photoLimit * (page + 1);
         return listOfUrl.subList(page * photoLimit, toIndex);
     }
