@@ -13,6 +13,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,19 +24,28 @@ import java.util.stream.Collectors;
 public class FlickrServiceImpl implements FlickrService {
 
     private List<String> listOfUrl;
+    private static final int ZERO = 0;
     private @Value("${flickr.api.key}") String apiKey;
     private @Value("${flickr.api.secret}") String apiSecret;
     private @Value("${flickr.photoset.id}") String photosetId;
     private @Value("${flickr.photoset.limit}") int photoLimit;
 
-    @AfterContextInitilized
+//    @AfterContextInitilized TODO implement
+    @PostConstruct //test
     public void loadCache() throws Exception {
-        List<String> imagesUrlFromAlbum = getImagesUrlFromAlbum(photosetId, 0, 999999);
-        List<String> imagesUrlByTag = getImagesUrlByTag(photosetId, 0, 999999);
+        List<String> imagesUrlFromAlbum = getImagesUrlFromAlbum(photosetId, ZERO, Integer.MAX_VALUE);
+        List<String> imagesUrlByTag = getImagesUrlByTag(photosetId, ZERO, Integer.MAX_VALUE);
         imagesUrlFromAlbum.removeAll(imagesUrlByTag);
         imagesUrlFromAlbum.addAll(imagesUrlByTag);
 
         listOfUrl = imagesUrlFromAlbum;
+        log.info("Cache size = " + listOfUrl.size());
+    }
+
+    @Override
+    public List<String> getAllImagesUrl(String tag, String albumId, int page) {
+        int toIndex = photoLimit * (page + 1) > listOfUrl.size() ? listOfUrl.size() : photoLimit * (page + 1);
+        return listOfUrl.subList(page * photoLimit, toIndex);
     }
 
     public List<String> getImagesUrlFromAlbum(String albumId, int page, int amount) throws Exception {
@@ -59,12 +70,6 @@ public class FlickrServiceImpl implements FlickrService {
             log.error(e);
             return null;
         }
-    }
-
-    @Override
-    public List<String> getAllImagesUrl(String tag, String albumId, int page) {
-        int toIndex = photoLimit * (page + 1) > listOfUrl.size() ? listOfUrl.size() : photoLimit * (page + 1);
-        return listOfUrl.subList(page * photoLimit, toIndex);
     }
 
     private static String getUrlFromPhoto(Photo photo){
