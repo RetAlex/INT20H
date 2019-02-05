@@ -20,6 +20,6 @@ public class AlbumController {
 
     @GetMapping("/getAllImages")
     public List<String> getAllImages(@RequestParam(name = "page", defaultValue = "0", required = false) int page){
-        return flickrService.getImagesFromAlbumOrByTag(Configurations.tag, Configurations.albumId, page);
+        return flickrService.getAllImagesUrl(Configurations.tag, Configurations.albumId, page);
     }
 }
