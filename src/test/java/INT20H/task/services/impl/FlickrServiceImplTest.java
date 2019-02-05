@@ -22,6 +22,15 @@ public class FlickrServiceImplTest {
     private @Value("${flickr.photoset.id}") String photosetId;
     private @Value("${flickr.photoset.limit}") int photosPerPage;
 
+    @Test
+    public void testAll(){
+        List<String> allImagesUrl = flickrService.getAllImagesUrl(1);
+        assert allImagesUrl.size() == photosPerPage;
+        allImagesUrl.forEach(e -> {
+            assert !StringUtils.isEmpty(e);
+        });
+
+    }
 //    @Test TODO
 //    public void getImagesUrlFromAlbum() throws Exception {
 //        List<String> imagesUrlFromAlbum = flickrService.getImagesUrlFromAlbum(photosetId, 1);
