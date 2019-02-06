@@ -6,7 +6,7 @@
       <v-toolbar-title>Filters</v-toolbar-title>
       <v-spacer></v-spacer>
 
-      <v-btn small  class="text-capitalize font-weight-medium">All</v-btn>
+      <v-btn small class="text-capitalize font-weight-medium" @click="getImages">All</v-btn>
       <v-btn small flat class="red accent-4 white--text text-capitalize font-weight-medium">Anger</v-btn>
       <v-btn small flat class="pink accent-4 white--text text-capitalize font-weight-medium">Surprise</v-btn>
       <v-btn small flat class="yellow darken-4 white--text text-capitalize">Happiness</v-btn>
@@ -18,8 +18,6 @@
       <v-btn small flat class="deep-purple accent-4 white--text text-capitalize font-weight-medium">Fear</v-btn>
       <v-btn small flat class="blue-grey darken-4 white--text text-capitalize font-weight-medium">Neutral</v-btn>
     </v-toolbar>
-
-    <!--<button @click="getImages">getAll images</button>-->
 
 <magic-grid class="container">
 
