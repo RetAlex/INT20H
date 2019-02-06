@@ -1,6 +1,6 @@
 package INT20H.task.controllers;
 
-import INT20H.task.configs.Configurations;
+import INT20H.task.model.dto.PhotoDto;
 import INT20H.task.services._interfaces.FlickrService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,8 +18,8 @@ public class AlbumController {
         this.flickrService = flickrService;
     }
 
-    @GetMapping("/getAllImages")
-    public List<String> getAllImages(@RequestParam(name = "page", defaultValue = "0", required = false) int page){
-        return flickrService.getImagesFromAlbumOrByTag(Configurations.tag, Configurations.albumId, page);
+    @GetMapping("/getAllImages") //todo validate page >= 0
+    public List<String> getAllImages(@RequestParam(name = "albumId", required = false) String albumId, @RequestParam(name = "tag", required = false) String tag, @RequestParam(name = "page", defaultValue = "0", required = false) int page) throws Exception {
+        return flickrService.getAllImagesUrl(new PhotoDto(albumId, tag), page);
     }
 }
