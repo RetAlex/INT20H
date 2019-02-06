@@ -52,7 +52,7 @@ public class FlickrServiceImpl implements FlickrService {
     public List<String> getAllImagesUrl(PhotoDto photoDto, int page) throws Exception {
         List<String> urls = getFromCacheOrSite(photoDto);
 
-        int toIndex = photoLimit * (page + 1) > urlCache.size() ? urlCache.size() : photoLimit * (page + 1);
+        int toIndex = photoLimit * (page + 1) > urls.size() ? urls.size() : photoLimit * (page + 1);
         int fromIndex = page * photoLimit;
 
         return urls.subList(fromIndex, toIndex);
