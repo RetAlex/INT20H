@@ -15,31 +15,28 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Log4j2
 public class FlickrServiceImpl implements FlickrService {
 
-    private Map<PhotoDto, List<String>> urlCache;
+    private Map<PhotoDto, List<String>> urlCache = new HashMap<>();
     private static final int ZERO = 0;
-    private String apiKey = Configs.flickrApiKey_;
-    private String apiSecret;
-    private String i20HphotosetId;
-    private String i20Htag;
-    private int photoLimit;
+    private @Value("${flickr.api.key}") String apiKey;
+    private @Value("${flickr.api.secret}") String apiSecret;
+    private @Value("${flickr.photoset.id}") String i20HphotosetId;
+    private @Value("${flickr.photoset.tag}") String i20Htag;
+    private @Value("${flickr.photoset.limit}") int photoLimit;
 
     //    @AfterContextInitialized TODO implement
     @PostConstruct
     public void loadCache() throws Exception {
-//        PhotoDto photoDto = new PhotoDto(i20HphotosetId, i20Htag);
-//        List<String> imagesUrlFromAlbum = getUrlByAlbumIdAndTag(photoDto);
-//        urlCache.put(photoDto, imagesUrlFromAlbum.stream().distinct().collect(Collectors.toList()));
-//        log.info("Cache size = " + urlCache.size());
+        PhotoDto photoDto = new PhotoDto(i20HphotosetId, i20Htag);
+        List<String> imagesUrlFromAlbum = getUrlByAlbumIdAndTag(photoDto);
+        urlCache.put(photoDto, imagesUrlFromAlbum.stream().distinct().collect(Collectors.toList()));
+        log.info("Cache size = " + urlCache.size());
     }
 
     private List<String> getUrlByAlbumIdAndTag(PhotoDto photoDto) throws Exception {
