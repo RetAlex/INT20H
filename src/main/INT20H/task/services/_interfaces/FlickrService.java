@@ -1,5 +1,6 @@
 package INT20H.task.services._interfaces;
 
+import INT20H.task.model.dto.PhotoDto;
 import com.flickr4java.flickr.FlickrException;
 
 import java.util.List;
@@ -11,5 +12,5 @@ public interface FlickrService {
      * @return list of url addresses of images
      */
 
-    List<String> getAllImagesUrl(int page);
+    List<String> getAllImagesUrl(PhotoDto photoDto, int page) throws Exception;
 }

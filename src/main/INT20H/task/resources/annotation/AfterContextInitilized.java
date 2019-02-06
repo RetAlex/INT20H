@@ -1,4 +1,4 @@
-package INT20H.task.resources;
+package INT20H.task.resources.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
