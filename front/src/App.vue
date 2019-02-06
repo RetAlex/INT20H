@@ -18,10 +18,11 @@
       <v-btn small flat class="blue-grey darken-4 white--text text-capitalize font-weight-medium">Neutral</v-btn>
     </v-toolbar>
 
+    <button @click="getImages">getAll images</button>
 
 <magic-grid class="container">
 
-      <div v-for="(post, i) in posts" class="item">{{post}}</div>
+      <img :src="image" v-for="(image, i) in images" class="item"></img>
 </magic-grid>
   </div>
 </template>
@@ -33,7 +34,23 @@ export default {
   name: 'App',
   data() {
     return {
-      posts: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+      images: []
+    }
+  },
+  methods: {
+    getImages() {
+
+      var xmlhttp = new XMLHttpRequest();
+
+      const url = '/api/getAllImages?albumId=72157674388093532&tag=int20h'
+
+      xmlhttp.open("GET", url)
+      xmlhttp.send()
+
+      xmlhttp.onreadystatechange=(e)=> {
+        console.log(xmlhttp.responseText)
+      }
+
     }
   }
 }
