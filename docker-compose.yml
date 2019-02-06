@@ -1,0 +1,19 @@
+version: '3.2'
+services:
+  back:
+    build: .
+    ports:
+      - 8080:8080
+    command: mvn clean install -Dmaven.test.skip=true spring-boot:run
+    volumes:
+      - type: bind
+        source: .
+        target: /Project/
+        bind:
+          propagation: share
+      - "/home/.m2"
+      - type: bind
+        source: ./front/dist
+        target: /Project/src/resources
+        bind:
+          propagation: share
