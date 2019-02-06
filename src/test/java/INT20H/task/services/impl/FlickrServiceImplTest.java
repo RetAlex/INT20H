@@ -24,7 +24,7 @@ public class FlickrServiceImplTest {
 
     @Test
     public void testAll(){
-        List<String> allImagesUrl = flickrService.getAllImagesUrl(1);
+        List<String> allImagesUrl = flickrService.getAllImagesUrl(99);
         assert allImagesUrl.size() == photosPerPage;
         allImagesUrl.forEach(e -> {
             assert !StringUtils.isEmpty(e);

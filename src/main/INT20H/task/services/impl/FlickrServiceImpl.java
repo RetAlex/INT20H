@@ -83,12 +83,4 @@ public class FlickrServiceImpl implements FlickrService {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        String userId = "72157674388093532";
-        String apikey = "bfd4c6af1cec67be3a5aa2b4c296b3f0";
-        String secret = "10a56939cf4647fd";
-        Flickr f = new Flickr(apikey, secret, new REST());
-        PhotoList<Photo> photos = f.getPhotosetsInterface().getPhotos("72157674388093532", 999999, 1);
-        System.out.println(photos);
-    }
 }
