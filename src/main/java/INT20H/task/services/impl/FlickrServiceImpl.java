@@ -1,7 +1,6 @@
 package INT20H.task.services.impl;
 
 import INT20H.task.model.dto.PhotoDto;
-import INT20H.task.resources.Configs;
 import INT20H.task.services._interfaces.FlickrService;
 import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.FlickrException;
@@ -11,12 +10,13 @@ import com.flickr4java.flickr.photos.PhotoList;
 import com.flickr4java.flickr.photos.SearchParameters;
 import com.flickr4java.flickr.photos.Size;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static INT20H.task.resources.Configs.*;
 
 @Service
 @Log4j2
@@ -24,19 +24,13 @@ public class FlickrServiceImpl implements FlickrService {
 
     private Map<PhotoDto, List<String>> urlCache = new HashMap<>();
     private static final int ZERO = 0;
-    private @Value("${flickr.api.key}") String apiKey;
-    private @Value("${flickr.api.secret}") String apiSecret;
-    private @Value("${flickr.photoset.id}") String i20HphotosetId;
-    private @Value("${flickr.photoset.tag}") String i20Htag;
-    private @Value("${flickr.photoset.limit}") int photoLimit;
 
-    //    @AfterContextInitialized TODO implement
-    @PostConstruct
+    @Scheduled(fixedRate = 60*1000)
     public void loadCache() throws Exception {
-        PhotoDto photoDto = new PhotoDto(i20HphotosetId, i20Htag);
+        PhotoDto photoDto = new PhotoDto(i20HphotosetId_, tag_);
         List<String> imagesUrlFromAlbum = getUrlByAlbumIdAndTag(photoDto);
         urlCache.put(photoDto, imagesUrlFromAlbum.stream().distinct().collect(Collectors.toList()));
-        log.info("Cache size = " + urlCache.size());
+        log.info("Cache size = " + urlCache.get(photoDto).size());
     }
 
     private List<String> getUrlByAlbumIdAndTag(PhotoDto photoDto) throws Exception {
@@ -52,8 +46,8 @@ public class FlickrServiceImpl implements FlickrService {
     public List<String> getAllImagesUrl(PhotoDto photoDto, int page) throws Exception {
         List<String> urls = getFromCacheOrSite(photoDto);
 
-        int toIndex = photoLimit * (page + 1) > urls.size() ? urls.size() : photoLimit * (page + 1);
-        int fromIndex = page * photoLimit;
+        int toIndex = photoLimit_ * (page + 1) > urls.size() ? urls.size() : photoLimit_ * (page + 1);
+        int fromIndex = page * photoLimit_;
 
         return urls.subList(fromIndex, toIndex);
     }
@@ -68,14 +62,14 @@ public class FlickrServiceImpl implements FlickrService {
     }
 
     public List<String> getImagesUrlFromAlbum(String albumId, int page, int amount) throws Exception {
-        Flickr f = new Flickr(apiKey, apiSecret, new REST());
+        Flickr f = new Flickr(flickrApiKey_, flickrApiSecret_, new REST());
         PhotoList<Photo> photos = f.getPhotosetsInterface().getPhotos(albumId, amount, page);
 
         return photos.stream().map(FlickrServiceImpl::getUrlFromPhoto).distinct().collect(Collectors.toList());
     }
 
     public List<String> getImagesUrlByTag(String tag, int page, int amount) throws Exception {
-        Flickr f = new Flickr(apiKey, apiSecret, new REST());
+        Flickr f = new Flickr(flickrApiKey_, flickrApiSecret_, new REST());
         SearchParameters params = new SearchParameters();
         params.setTags(new String[]{tag});
         PhotoList<Photo> search = f.getPhotosInterface().search(params, amount, page);
