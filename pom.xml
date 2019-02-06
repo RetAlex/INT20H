@@ -75,14 +75,12 @@
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-				<targetPath>resources</targetPath>
 			</resource>
 		</resources>
-		<testSourceDirectory>src/test</testSourceDirectory>
+		<testSourceDirectory>src/test/java</testSourceDirectory>
 		<testResources>
 			<testResource>
-				<directory>src/resources</directory>
-				<targetPath>resources</targetPath>
+				<directory>src/test/resources</directory>
 			</testResource>
 		</testResources>
 		<plugins>

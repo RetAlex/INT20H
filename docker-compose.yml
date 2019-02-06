@@ -3,7 +3,7 @@ services:
   back:
     build: .
     ports:
-      - 8080:8080
+      - 8079:8079
     command: mvn clean install -Dmaven.test.skip=true spring-boot:run
     volumes:
       - type: bind
@@ -13,7 +13,12 @@ services:
           propagation: share
       - "/home/.m2"
       - type: bind
-        source: ./front/dist
-        target: /Project/src/resources
+        source: ./front/dist/static
+        target: /Project/src/main/resources/static
+        bind:
+          propagation: share
+      - type: bind
+        source: ./front/dist/index.html
+        target: /Project/src/main/resources/index.html
         bind:
           propagation: share
