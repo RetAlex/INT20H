@@ -6,6 +6,7 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class PhotoDto {
     private String albumId;
     private String tag;
