@@ -11,6 +11,6 @@ public class IndexController {
 
     @GetMapping("/")
     public @ResponseBody byte[] renderIndex() throws IOException {
-        return getClass().getResourceAsStream("/index.html").readAllBytes();
+        return getClass().getResourceAsStream("/resources/index.html").readAllBytes();
     }
 }

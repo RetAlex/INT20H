@@ -61,12 +61,14 @@
 		<resources>
 			<resource>
 				<directory>src/resources</directory>
+				<targetPath>resources</targetPath>
 			</resource>
 		</resources>
 		<testSourceDirectory>src/test</testSourceDirectory>
 		<testResources>
 			<testResource>
 				<directory>src/testResources</directory>
+				<targetPath>resources</targetPath>
 			</testResource>
 		</testResources>
 		<plugins>
