@@ -2,6 +2,8 @@ target/
 out/
 !.mvn/wrapper/maven-wrapper.jar
 
+package-lock.json
+
 .DS_Store
 
 ### STS ###
