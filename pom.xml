@@ -71,17 +71,17 @@
 	</dependencies>
 
 	<build>
-		<sourceDirectory>src/main</sourceDirectory>
+		<sourceDirectory>src/main/java</sourceDirectory>
 		<resources>
 			<resource>
-				<directory>src/resources</directory>
+				<directory>src/main/resources</directory>
 				<targetPath>resources</targetPath>
 			</resource>
 		</resources>
 		<testSourceDirectory>src/test</testSourceDirectory>
 		<testResources>
 			<testResource>
-				<directory>src/testResources</directory>
+				<directory>src/resources</directory>
 				<targetPath>resources</targetPath>
 			</testResource>
 		</testResources>
