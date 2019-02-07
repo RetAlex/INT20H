@@ -4,9 +4,12 @@ import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.REST;
 import com.flickr4java.flickr.photos.Photo;
 import com.flickr4java.flickr.photos.PhotoList;
+import com.flickr4java.flickr.photos.Size;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Collection;
 
 @RunWith(SpringRunner.class)
 public class FlickrApiMainTest {
@@ -18,8 +21,9 @@ public class FlickrApiMainTest {
         String secret = "10a56939cf4647fd";
         Flickr f = new Flickr(apikey, secret, new REST());
 
-        PhotoList<Photo> photos = f.getPhotosetsInterface().getPhotos(null, 6, 1);
+        PhotoList<Photo> photos = f.getPhotosetsInterface().getPhotos("72157674388093532", 6, 1);
         System.out.println();
-
+        Collection<Size> sizes = f.getPhotosInterface().getSizes(photos.get(0).getId());
+        System.out.println(sizes.stream().filter(s -> s.getLabel() == 5).findFirst().get().getSource());
     }
 }
