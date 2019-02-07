@@ -10,4 +10,5 @@ import lombok.*;
 public class PhotoDto {
     private String albumId;
     private String tag;
+    private Integer label;
 }

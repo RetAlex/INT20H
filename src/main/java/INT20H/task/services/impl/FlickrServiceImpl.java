@@ -8,7 +8,6 @@ import com.flickr4java.flickr.REST;
 import com.flickr4java.flickr.photos.Photo;
 import com.flickr4java.flickr.photos.PhotoList;
 import com.flickr4java.flickr.photos.SearchParameters;
-import com.flickr4java.flickr.photos.Size;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -24,10 +23,12 @@ public class FlickrServiceImpl implements FlickrService {
 
     private Map<PhotoDto, List<String>> urlCache = new HashMap<>();
     private static final int ZERO = 0;
+    private static volatile int k = 0;
+    int amount = 2;
 
-    @Scheduled(fixedRate = 60*1000)
+    @Scheduled(fixedRate = 120*1000)
     public void loadCache() throws Exception {
-        PhotoDto photoDto = new PhotoDto(i20HphotosetId_, tag_);
+        PhotoDto photoDto = new PhotoDto(i20HphotosetId_, tag_, 5); //TODO label
         List<String> imagesUrlFromAlbum = getUrlByAlbumIdAndTag(photoDto);
         urlCache.put(photoDto, imagesUrlFromAlbum.stream().distinct().collect(Collectors.toList()));
         log.info("Cache size = " + urlCache.get(photoDto).size());
@@ -35,15 +36,15 @@ public class FlickrServiceImpl implements FlickrService {
 
     private List<String> getUrlByAlbumIdAndTag(PhotoDto photoDto) throws Exception {
         List<String> imagesUrlFromAlbum = new ArrayList<>();
-        if(photoDto.getAlbumId() != null) imagesUrlFromAlbum = getImagesUrlFromAlbum(photoDto.getAlbumId(), ZERO, Integer.MAX_VALUE);
+        if(photoDto.getAlbumId() != null) imagesUrlFromAlbum = getImagesUrlFromAlbum(photoDto, ZERO, amount);
 
-        List<String> imagesUrlByTag = getImagesUrlByTag(photoDto.getTag(), ZERO, Integer.MAX_VALUE);
+        List<String> imagesUrlByTag = getImagesUrlByTag(photoDto, ZERO, amount);
         imagesUrlFromAlbum.addAll(imagesUrlByTag);
         return imagesUrlFromAlbum;
     }
 
     @Override
-    public List<String> getAllImagesUrl(PhotoDto photoDto, int page) throws Exception {
+    public List<String> getAllImagesUrl(PhotoDto photoDto, int page, int label) throws Exception {
         List<String> urls = getFromCacheOrSite(photoDto);
 
         int toIndex = photoLimit_ * (page + 1) > urls.size() ? urls.size() : photoLimit_ * (page + 1);
@@ -61,29 +62,44 @@ public class FlickrServiceImpl implements FlickrService {
         return urls;
     }
 
-    public List<String> getImagesUrlFromAlbum(String albumId, int page, int amount) throws Exception {
+    public List<String> getImagesUrlFromAlbum(PhotoDto photo, int page, int amount) throws Exception {
         Flickr f = new Flickr(flickrApiKey_, flickrApiSecret_, new REST());
-        PhotoList<Photo> photos = f.getPhotosetsInterface().getPhotos(albumId, amount, page);
+        PhotoList<Photo> photos = f.getPhotosetsInterface().getPhotos(photo.getAlbumId(), amount, page);
+        System.out.println("start getImagesUrlFromAlbum");
 
-        return photos.stream().map(FlickrServiceImpl::getUrlFromPhoto).distinct().collect(Collectors.toList());
+        return photos.stream().map(Photo::getId).map(e -> getLabelSizeFromPhoto(photo, f, e)).collect(Collectors.toList());
     }
 
-    public List<String> getImagesUrlByTag(String tag, int page, int amount) throws Exception {
+    public List<String> getImagesUrlByTag(PhotoDto photoDto, int page, int amount) throws Exception {
         Flickr f = new Flickr(flickrApiKey_, flickrApiSecret_, new REST());
         SearchParameters params = new SearchParameters();
-        params.setTags(new String[]{tag});
+        params.setTags(new String[]{photoDto.getTag()});
         PhotoList<Photo> search = f.getPhotosInterface().search(params, amount, page);
-        return search.stream().map(e -> getSourceUrlFromSize(f, e)).filter(Objects::nonNull).collect(Collectors.toList());
+        System.out.println("start getImagesUrlByTag");
+        return search.stream().map(Photo::getId).map(e -> getLabelSizeFromPhoto(photoDto, f, e)).collect(Collectors.toList());
     }
 
-    public static String getSourceUrlFromSize(Flickr f, Photo photo) {
+    private static String getLabelSizeFromPhoto(PhotoDto photoDto, Flickr f, String photoId) {
         try {
-            return ((List<Size>)f.getPhotosInterface().getSizes(photo.getId())).get(0).getSource();
-        } catch (FlickrException e) {
-            log.error(e);
-            return null;
+            Thread.sleep(50);
+            System.out.println("processing  " + ++k);
+            return f.getPhotosInterface().getSizes(photoId).stream().filter(e1 -> e1.getLabel() == photoDto.getLabel()).findFirst().get().getSource();
+        } catch (FlickrException e1) {
+            e1.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+        return null;
     }
+
+//    public static String getSourceUrlFromSize(Flickr f, String id, PhotoDto photoDto) {
+//        try {
+//            return (f.getPhotosInterface().getSizes(id)).stream().peek(e -> getLabelSizeFromPhoto(photoDto, f, e.)).getSource();
+//        } catch (FlickrException e) {
+//            log.error(e);
+//            return null;
+//        }
+//    }
 
     private static String getUrlFromPhoto(Photo photo){
         try {
