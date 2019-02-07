@@ -6,6 +6,10 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
@@ -19,6 +23,12 @@ public class FaceAPITest {
 
     @Test
     public void getFacesTokens() {
-        System.out.println(api.getFacesTokens(key, secret, "https://zub.ru/upload/resize_cache/iblock/3fb/400_400_1/3fbb5092e65142007fb8971a1abbf9d6.jpg"));
+        System.out.println(api.getFacesTokens(key, secret, "https://i.ytimg.com/vi/4VQcx2mpX3M/hqdefault.jpg"));
+    }
+
+    @Test
+    public void getEmotionsByFaceTokens() {
+        List<String> tokens = new ArrayList<String>(Arrays.asList("da89a2c98fc7dedbf4eeb9a8e6babe2a"));
+        System.out.println(api.getEmotionsByFaceTokens(key, secret, tokens));
     }
 }
