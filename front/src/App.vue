@@ -6,6 +6,7 @@
       <v-toolbar-title>Filters</v-toolbar-title>
       <v-spacer></v-spacer>
 
+      <v-btn small class="text-capitalize font-weight-medium" @click="getImages">All</v-btn>
       <v-btn small flat class="red accent-4 white--text text-capitalize font-weight-medium">Anger</v-btn>
       <v-btn small flat class="pink accent-4 white--text text-capitalize font-weight-medium">Surprise</v-btn>
       <v-btn small flat class="yellow darken-4 white--text text-capitalize">Happiness</v-btn>
@@ -18,10 +19,13 @@
       <v-btn small flat class="blue-grey darken-4 white--text text-capitalize font-weight-medium">Neutral</v-btn>
     </v-toolbar>
 
-
 <magic-grid class="container">
 
-      <div v-for="(post, i) in posts" class="item">{{post}}</div>
+  <!--<div class="">-->
+    <img :src="image" v-for="(image, i) in images" class="item"/>
+    <!--<span>{{image}}</span>-->
+  <!--</div>-->
+
 </magic-grid>
   </div>
 </template>
@@ -33,8 +37,28 @@ export default {
   name: 'App',
   data() {
     return {
-      posts: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+      images: [
+      ]
     }
+  },
+  methods: {
+    getImages() {
+
+      let xmlhttp = new XMLHttpRequest();
+      const url = 'http://localhost:8079/api/getAllImages?albumId=72157674388093532&tag=int20h5&label=5';
+
+      xmlhttp.open("GET", url)
+      xmlhttp.send()
+
+      xmlhttp.onreadystatechange=(e)=> {
+        this.images = JSON.parse(xmlhttp.response)
+      }
+
+    }
+  },
+
+  mounted() {
+    this.getImages()
   }
 }
 </script>
@@ -61,9 +85,6 @@ export default {
   align-items: center;
   border-radius: 8px;
 }
-.container .item:nth-child(2) { height: 200px; }
-.container .item:nth-child(4n) { height: 800px; }
-.container .item:nth-child(6) { height: 600px; }
-.container .item:nth-child(11) { height: 400px; }
+
 
 </style>
