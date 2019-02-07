@@ -11,13 +11,15 @@ public class Configs {
     private String i20HphotosetId;
     private String tag;
     private int photoLimit;
+    private int defaultLabel;
 
     public static String flickrApiKey_;
+
     public static String flickrApiSecret_;
     public static String i20HphotosetId_;
     public static String tag_;
     public static int photoLimit_;
-
+    public static int defaultLabel_;
     public void setFlickrApiSecret(String flickrApiSecret) {
         flickrApiSecret_ = this.flickrApiSecret = flickrApiSecret;
     }
@@ -36,5 +38,9 @@ public class Configs {
 
     public void setFlickrApiKey(String flickrApiKey) {
         flickrApiKey_ = this.flickrApiKey = flickrApiKey;
+    }
+
+    public void setDefaultLabel_(int defaultLabel) {
+        defaultLabel_ = this.defaultLabel = defaultLabel;
     }
 }
