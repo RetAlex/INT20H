@@ -5,6 +5,7 @@ import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.services._interfaces.FacePlusPlusService;
 import INT20H.task.services._interfaces.FlickrService;
 import INT20H.task.utils.FaceAPI;
+import com.flickr4java.flickr.photos.Size;
 import org.springframework.scheduling.annotation.Scheduled;
 import static INT20H.task.resources.Configs.*;
 
@@ -28,12 +29,10 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
     @Scheduled
     public void cacheEmogies(){
         for (Map.Entry<PhotoDto, List<PhotoSizeDto>> entry : flickrService.getUrlCache().entrySet()) {
-
+            Size size = entry.getValue().stream().flatMap(e -> e.getListOfSizes().stream()).filter(e -> e.getLabel() == defaultLabel_).findFirst().get();
+            emogiesMap.put(entry.getValue().get(0).getId(), getEmotionsByUrl(size.getSource())); // TODO change emogiesMap, should contain <String, PhotoSizesDto>!!!
         }
     }
-
-    @Override
-    public List<String> getFaceTokensByUrl(String url) {
 
     private List<String> getFaceTokensByUrl(String url) {
         List<String> tokens = null;
