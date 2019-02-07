@@ -34,6 +34,8 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
 
     @Override
     public List<String> getFaceTokensByUrl(String url) {
+
+    private List<String> getFaceTokensByUrl(String url) {
         List<String> tokens = null;
         try {
             FaceAPI api = new FaceAPI();
@@ -43,13 +45,25 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         return tokens;
     }
 
-    @Override
-    public List<String> getEmoutionsByTokens(List<String> tokens) {
+
+    private List<String> getEmoutionsByTokens(List<String> tokens) {
         List<String> emotions = null;
         try {
             FaceAPI api = new FaceAPI();
             emotions = api.getEmotionsByFaceTokens(key, secret, tokens);
         } catch (Exception e) {
+        }
+        return emotions;
+    }
+
+    @Override
+    public List<String> getEmotionsByUrl(String url) {
+        List<String> emotions = null;
+        try {
+            List<String> tokens = getFaceTokensByUrl(url);
+            emotions = getEmoutionsByTokens(tokens);
+        } catch (Exception e) {
+
         }
         return emotions;
     }

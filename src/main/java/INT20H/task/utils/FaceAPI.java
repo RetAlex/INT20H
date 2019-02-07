@@ -14,7 +14,7 @@ public class FaceAPI {
     private String detectAPI = "https://api-us.faceplusplus.com/facepp/v3/detect";
     private String faceAnalyzeAPI = "https://api-us.faceplusplus.com/facepp/v3/face/analyze";
 
-    public List<String> getFacesTokens(String key, String secret, String photoUrl) {
+    public  List<String> getFacesTokens(String key, String secret, String photoUrl) {
         List<String> tokens = new ArrayList<>();
         try {
             HashMap<String, String> map = new HashMap<>();

@@ -8,4 +8,5 @@ public interface FacePlusPlusService {
     @Scheduled
     void cacheEmogies();
 
+    public List<String> getEmotionsByUrl(String url);
 }
