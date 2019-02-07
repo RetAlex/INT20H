@@ -10,6 +10,7 @@ import com.flickr4java.flickr.photos.Photo;
 import com.flickr4java.flickr.photos.PhotoList;
 import com.flickr4java.flickr.photos.SearchParameters;
 import com.flickr4java.flickr.photos.Size;
+import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import static INT20H.task.resources.Configs.*;
 
 @Service
 @Log4j2
+@Data
 public class FlickrServiceImpl implements FlickrService {
 
     private Map<PhotoDto, List<PhotoSizeDto>> urlCache = new HashMap<>();

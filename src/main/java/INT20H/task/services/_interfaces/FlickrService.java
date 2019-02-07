@@ -4,6 +4,7 @@ import INT20H.task.model.dto.PhotoDto;
 import INT20H.task.model.dto.PhotoSizeDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface FlickrService {
     /**
@@ -14,4 +15,6 @@ public interface FlickrService {
      */
 
     List<PhotoSizeDto> getAllImagesUrl(PhotoDto photoDto, int page, int label) throws Exception;
+
+    Map<PhotoDto, List<PhotoSizeDto>> getUrlCache();
 }
