@@ -20,7 +20,8 @@ public class FilterController {
 
 
     @GetMapping("/getListOfSizesByEmogy") //todo validate page >= 0
-    public List<PhotoSizeDto> getAllImages(@RequestParam(name = "emogy") String emogy) throws Exception {
-        return facePlusPlusService.getAllEmogies(emogy);
+    public List<PhotoSizeDto> getAllImages(@RequestParam(name = "emogy") String emogy,
+                                           @RequestParam(name = "page", defaultValue = "0", required = false) int page) throws Exception {
+        return facePlusPlusService.getAllEmogies(emogy, page);
     }
 }

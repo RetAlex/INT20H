@@ -10,5 +10,5 @@ public interface FacePlusPlusService {
     void cacheEmogies();
 
     List<String> getEmotionsByUrl(String url);
-    List<PhotoSizeDto> getAllEmogies(String emogie);
+    List<PhotoSizeDto> getAllEmogies(String emogie, int page);
 }
