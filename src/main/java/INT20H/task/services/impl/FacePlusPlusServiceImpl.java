@@ -12,10 +12,9 @@ import static INT20H.task.resources.Configs.*;
 import java.util.List;
 import java.util.Map;
 
-public class FacePlusPlusServiceImpl implements FacePlusPlusService {
+import static INT20H.task.resources.Configs.*;
 
-    private String key = "JNsr371qG2YY0jYB8MLs5M_E9QYsDOt4";
-    private String secret = "PO04I-3jZxB1BbBeWc6VqQxhmNCFjJFZ";
+public class FacePlusPlusServiceImpl implements FacePlusPlusService {
 
     private Map<String, List<String>> emogiesMap;
 
@@ -38,7 +37,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         List<String> tokens = null;
         try {
             FaceAPI api = new FaceAPI();
-            tokens = api.getFacesTokens(key, secret, url);
+            tokens = api.getFacesTokens(faceApiKey_, faceApiSecret_, url);
         } catch (Exception e) {
         }
         return tokens;
@@ -49,7 +48,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         List<String> emotions = null;
         try {
             FaceAPI api = new FaceAPI();
-            emotions = api.getEmotionsByFaceTokens(key, secret, tokens);
+            emotions = api.getEmotionsByFaceTokens(faceApiKey_, faceApiSecret_, tokens);
         } catch (Exception e) {
         }
         return emotions;
