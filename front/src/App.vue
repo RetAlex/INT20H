@@ -19,15 +19,21 @@
       <v-btn small flat class="blue-grey darken-4 white--text text-capitalize font-weight-medium" @click="getImages('/api/getListOfSizesByEmogy?emogy=neutral')">Neutral</v-btn>
     </v-toolbar>
 
-<magic-grid class="container">
 
   <!--<div class="">-->
-    <!--<img :src="image" v-for="(image, i) in images" class="item"/>-->
+
 
   <!--</div>-->
+    <masonry
+      :cols="{default: 4, 1000: 3, 700: 2, 400: 1}"
+      :gutter="{default: '30px', 700: '15px'}"
+      class="container"
+    >
+      <!--<div v-for="(item, index) in items" :key="index">Item: {{index + 1}}</div>-->
+      <img :src="image[5].source" v-for="(image, i) in images" :key="i" class="item"/>
+    </masonry>
 
-</magic-grid>
-    <span v-for="(image, i) in images" class="items">{{image}} {{i}}</span>
+    <!--<span v-for="(image, i) in images" class="items">{{image[5].source}} {{i}}</span>-->
   </div>
 </template>
 
@@ -52,7 +58,11 @@ export default {
       xmlhttp.send()
 
       xmlhttp.onreadystatechange=(e)=> {
-        this.images = JSON.parse(xmlhttp.responseText)
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+
+          this.images = JSON.parse(xmlhttp.response)
+        }
+        // this.images = xmlhttp.responseXML
       }
 
     },
@@ -77,22 +87,25 @@ export default {
 }
 
 .container {
-  top: 1.25em;
+  /*top: 1.25em;*/
+  max-width: 100%;
 }
 
-.container div {
-  width: 100%;
-  height: 100px;
-  background-color: cyan;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 8px;
-}
+/*.container div {*/
+  /*width: 100%;*/
+  /*height: 100px;*/
+  /*background-color: cyan;*/
+  /*display: flex;*/
+  /*justify-content: center;*/
+  /*align-items: center;*/
+  /*border-radius: 8px;*/
+/*}*/
 
-.items{
-  display: block;
+.item{
+  /*display: block;*/
   width: 100%;
-  margin-bottom: 20px;
+  /*height: 100%;*/
+  margin: 20px;
+  object-fit: contain;
 }
 </style>
