@@ -1,7 +1,7 @@
 package INT20H.task.controllers;
 
+import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.services._interfaces.FacePlusPlusService;
-import com.flickr4java.flickr.photos.Size;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,7 +20,7 @@ public class FilterController {
 
 
     @GetMapping("/getListOfSizesByEmogy") //todo validate page >= 0
-    public List<List<Size>> getAllImages(@RequestParam(name = "emogy") String emogy) throws Exception {
+    public List<PhotoSizeDto> getAllImages(@RequestParam(name = "emogy") String emogy) throws Exception {
         return facePlusPlusService.getAllEmogies(emogy);
     }
 }

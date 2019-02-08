@@ -30,7 +30,7 @@ public class FlickrServiceImpl implements FlickrService {
     private static volatile int k = 0;
     int amount = 10;
 
-    @Scheduled(fixedRate = 120*1000)
+    @Scheduled(initialDelay = 0, fixedDelay = 1000)
     public void loadCache() throws Exception {
         Map<PhotoDto, List<PhotoSizeDto>> urlCacheBuffer = new HashMap<>();
         PhotoDto photoDto = new PhotoDto(i20HphotosetId_, tag_, defaultLabel_);
