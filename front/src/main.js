@@ -4,10 +4,10 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import Vuetify from 'vuetify'
+import VueMasonry from 'vue-masonry-css'
 
-import MagicGrid from 'vue-magic-grid'
+Vue.use(VueMasonry);
 
-Vue.use(MagicGrid)
 // Helpers
 import colors from 'vuetify/es5/util/colors'
 
