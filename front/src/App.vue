@@ -45,7 +45,7 @@ export default {
     getImages() {
 
       let xmlhttp = new XMLHttpRequest();
-      const url = 'http://localhost:8079/api/getAllImages?albumId=72157674388093532&tag=int20h5&label=5';
+      const url = 'http://localhost:8079/api/getAllImages?albumId=72157674388093532&tag=int20h';
 
       xmlhttp.open("GET", url)
       xmlhttp.send()
