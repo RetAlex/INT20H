@@ -74,7 +74,7 @@ public class FlickrServiceImpl implements FlickrService {
         PhotoList<Photo> photos = f.getPhotosetsInterface().getPhotos(photo.getAlbumId(), amount, page);
         System.out.println("start getImagesUrlFromAlbum");
 
-        return photos.stream().map(Photo::getId).map(id -> new PhotoSizeDto(id, null)).collect(Collectors.toList());
+        return photos.stream().map(Photo::getId).map(id -> getPhotoSizeDto(f, id)).collect(Collectors.toList());
     }
 
     public List<PhotoSizeDto> getImagesUrlByTag(PhotoDto photoDto, int page, int amount) throws Exception {
@@ -83,10 +83,10 @@ public class FlickrServiceImpl implements FlickrService {
         params.setTags(new String[]{photoDto.getTag()});
         PhotoList<Photo> search = f.getPhotosInterface().search(params, amount, page);
         System.out.println("start getImagesUrlByTag");
-        return search.stream().map(Photo::getId).map(id -> getPhotoSizeDto(photoDto, f, id)).collect(Collectors.toList());
+        return search.stream().map(Photo::getId).map(id -> getPhotoSizeDto(f, id)).collect(Collectors.toList());
     }
 
-    private static PhotoSizeDto getPhotoSizeDto(PhotoDto photoDto, Flickr f, String photoId) {
+    private static PhotoSizeDto getPhotoSizeDto(Flickr f, String photoId) {
         try {
             Thread.sleep(50);
             System.out.println("processing  " + ++k);
