@@ -32,10 +32,12 @@ public class FlickrServiceImpl implements FlickrService {
 
     @Scheduled(fixedRate = 120*1000)
     public void loadCache() throws Exception {
+        Map<PhotoDto, List<PhotoSizeDto>> urlCacheBuffer = new HashMap<>();
         PhotoDto photoDto = new PhotoDto(i20HphotosetId_, tag_, defaultLabel_);
         List<PhotoSizeDto> imagesUrlFromAlbum = getUrlByAlbumIdAndTag(photoDto);
-        urlCache.put(photoDto, imagesUrlFromAlbum.stream().distinct().collect(Collectors.toList()));
-        log.info("Cache size = " + urlCache.get(photoDto).size());
+        urlCacheBuffer.put(photoDto, imagesUrlFromAlbum.stream().distinct().collect(Collectors.toList()));
+        log.info("Cache size = " + urlCacheBuffer.get(photoDto).size());
+        urlCache = urlCacheBuffer;
     }
 
     private List<PhotoSizeDto> getUrlByAlbumIdAndTag(PhotoDto photoDto) throws Exception {

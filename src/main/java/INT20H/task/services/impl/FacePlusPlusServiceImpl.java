@@ -6,18 +6,25 @@ import INT20H.task.services._interfaces.FacePlusPlusService;
 import INT20H.task.services._interfaces.FlickrService;
 import INT20H.task.utils.FaceAPI;
 import com.flickr4java.flickr.photos.Size;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
 import static INT20H.task.resources.Configs.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Service
+@Log4j2
 public class FacePlusPlusServiceImpl implements FacePlusPlusService {
-
     private String key = "JNsr371qG2YY0jYB8MLs5M_E9QYsDOt4";
+
     private String secret = "PO04I-3jZxB1BbBeWc6VqQxhmNCFjJFZ";
 
-    private Map<String, List<String>> emogiesMap;
+    private Map<String, List<List<Size>>> emogiesMap; //extract dto
 
     private final FlickrService flickrService;
 
@@ -26,12 +33,40 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
     }
 
     @Override
-    @Scheduled
+    @Scheduled(fixedRate = 120*1000)
     public void cacheEmogies(){
-        for (Map.Entry<PhotoDto, List<PhotoSizeDto>> entry : flickrService.getUrlCache().entrySet()) {
-            Size size = entry.getValue().stream().flatMap(e -> e.getListOfSizes().stream()).filter(e -> e.getLabel() == defaultLabel_).findFirst().get();
-            emogiesMap.put(entry.getValue().get(0).getId(), getEmotionsByUrl(size.getSource())); // TODO change emogiesMap, should contain <String, PhotoSizesDto>!!!
+        try {
+            Map<String, List<List<Size>>> emogiesMapBuffer = new HashMap<>(); //extract dto
+
+            PhotoDto photoDto = new PhotoDto(i20HphotosetId_, tag_, defaultLabel_);
+            Map<PhotoDto, List<PhotoSizeDto>> urlCache = flickrService.getUrlCache();
+            if (urlCache == null || urlCache.size() == 0) return;
+            List<PhotoSizeDto> photoSizeDtos = urlCache.get(photoDto);
+            for (PhotoSizeDto photoSizeDto : photoSizeDtos) {
+                List<Size> listOfSizes = photoSizeDto.getListOfSizes();
+                if (listOfSizes == null) continue;
+                String source = listOfSizes.stream().filter(e -> e.getLabel() == 4).findFirst().get().getSource();
+                List<String> emotionsByUrl = getEmotionsByUrl(source);
+                for (String emogy : emotionsByUrl) {
+                    List<List<Size>> listOfSizesByEmogy = emogiesMapBuffer.get(emogy);
+                    if (listOfSizesByEmogy == null) {
+                        listOfSizesByEmogy = new ArrayList<>();
+                        emogiesMapBuffer.put(emogy, listOfSizesByEmogy);
+                    } else {
+                        listOfSizesByEmogy.add(photoSizeDto.getListOfSizes());
+                    }
+                }
+            }
+            emogiesMap = emogiesMapBuffer; //TODO optimize cache, don't cache already parsed image
+            System.out.println(photoDto);
+        } catch (Exception e){
+            log.error(e);
         }
+    }
+
+    @Override
+    public List<List<Size>> getAllEmogies(String emogie) {
+        return emogiesMap.get(emogie);
     }
 
     private List<String> getFaceTokensByUrl(String url) {
@@ -40,6 +75,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
             FaceAPI api = new FaceAPI();
             tokens = api.getFacesTokens(key, secret, url);
         } catch (Exception e) {
+            log.error(e);
         }
         return tokens;
     }
@@ -51,18 +87,20 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
             FaceAPI api = new FaceAPI();
             emotions = api.getEmotionsByFaceTokens(key, secret, tokens);
         } catch (Exception e) {
+            log.error(e);
         }
         return emotions;
     }
 
     @Override
     public List<String> getEmotionsByUrl(String url) {
+        System.out.println("getEmotionsByUrl");
         List<String> emotions = null;
         try {
             List<String> tokens = getFaceTokensByUrl(url);
             emotions = getEmoutionsByTokens(tokens);
         } catch (Exception e) {
-
+            log.error(e);
         }
         return emotions;
     }

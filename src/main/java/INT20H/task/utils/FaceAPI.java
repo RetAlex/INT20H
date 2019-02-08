@@ -3,12 +3,14 @@ package INT20H.task.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.log4j.Log4j2;
 import org.apache.tomcat.util.buf.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.*;
 
+@Log4j2
 public class FaceAPI {
 
     private String detectAPI = "https://api-us.faceplusplus.com/facepp/v3/detect";
@@ -29,6 +31,7 @@ public class FaceAPI {
                 tokens.add(face.getString("face_token"));
             }
         } catch (Exception e) {
+            log.error(e);
         }
         return tokens;
     }
