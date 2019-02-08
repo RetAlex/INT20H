@@ -17,12 +17,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static INT20H.task.resources.Configs.*;
+
 @Service
 @Log4j2
 public class FacePlusPlusServiceImpl implements FacePlusPlusService {
-    private String key = "JNsr371qG2YY0jYB8MLs5M_E9QYsDOt4";
-
-    private String secret = "PO04I-3jZxB1BbBeWc6VqQxhmNCFjJFZ";
 
     private Map<String, List<List<Size>>> emogiesMap; //extract dto
 
@@ -73,7 +72,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         List<String> tokens = null;
         try {
             FaceAPI api = new FaceAPI();
-            tokens = api.getFacesTokens(key, secret, url);
+            tokens = api.getFacesTokens(faceApiKey_, faceApiSecret_, url);
         } catch (Exception e) {
             log.error(e);
         }
@@ -85,7 +84,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         List<String> emotions = null;
         try {
             FaceAPI api = new FaceAPI();
-            emotions = api.getEmotionsByFaceTokens(key, secret, tokens);
+            emotions = api.getEmotionsByFaceTokens(faceApiKey_, faceApiSecret_, tokens);
         } catch (Exception e) {
             log.error(e);
         }
