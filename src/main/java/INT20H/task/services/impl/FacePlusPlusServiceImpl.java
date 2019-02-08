@@ -17,13 +17,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static INT20H.task.resources.Configs.*;
-
 @Service
 @Log4j2
 public class FacePlusPlusServiceImpl implements FacePlusPlusService {
 
-    private Map<String, List<List<Size>>> emogiesMap; //extract dto
+    private Map<String, List<PhotoSizeDto>> emogiesMap; //extract dto
 
     private final FlickrService flickrService;
 
@@ -32,10 +30,11 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
     }
 
     @Override
-    @Scheduled(fixedRate = 120*1000)
+    @Scheduled(initialDelay = 10*1000, fixedDelay = 1000)
     public void cacheEmogies(){
+
         try {
-            Map<String, List<List<Size>>> emogiesMapBuffer = new HashMap<>(); //extract dto
+            Map<String, List<PhotoSizeDto>> emogiesMapBuffer = new HashMap<>(); //extract dto
 
             PhotoDto photoDto = new PhotoDto(i20HphotosetId_, tag_, defaultLabel_);
             Map<PhotoDto, List<PhotoSizeDto>> urlCache = flickrService.getUrlCache();
@@ -47,24 +46,23 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
                 String source = listOfSizes.stream().filter(e -> e.getLabel() == 4).findFirst().get().getSource();
                 List<String> emotionsByUrl = getEmotionsByUrl(source);
                 for (String emogy : emotionsByUrl) {
-                    List<List<Size>> listOfSizesByEmogy = emogiesMapBuffer.get(emogy);
+                    List<PhotoSizeDto> listOfSizesByEmogy = emogiesMapBuffer.get(emogy);
                     if (listOfSizesByEmogy == null) {
                         listOfSizesByEmogy = new ArrayList<>();
                         emogiesMapBuffer.put(emogy, listOfSizesByEmogy);
                     } else {
-                        listOfSizesByEmogy.add(photoSizeDto.getListOfSizes());
+                        listOfSizesByEmogy.add(new PhotoSizeDto(photoSizeDto.getId(), photoSizeDto.getListOfSizes()));
                     }
                 }
             }
             emogiesMap = emogiesMapBuffer; //TODO optimize cache, don't cache already parsed image
-            System.out.println(photoDto);
         } catch (Exception e){
             log.error(e);
         }
     }
 
     @Override
-    public List<List<Size>> getAllEmogies(String emogie) {
+    public List<PhotoSizeDto> getAllEmogies(String emogie) {
         return emogiesMap.get(emogie);
     }
 

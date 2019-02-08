@@ -1,6 +1,6 @@
 package INT20H.task.services._interfaces;
 
-import com.flickr4java.flickr.photos.Size;
+import INT20H.task.model.dto.PhotoSizeDto;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.List;
@@ -10,5 +10,5 @@ public interface FacePlusPlusService {
     void cacheEmogies();
 
     List<String> getEmotionsByUrl(String url);
-    List<List<Size>> getAllEmogies(String emogie);
+    List<PhotoSizeDto> getAllEmogies(String emogie);
 }
