@@ -28,7 +28,7 @@ public class FlickrServiceImpl implements FlickrService {
     private Map<PhotoDto, List<PhotoSizeDto>> urlCache = new HashMap<>();
     private static final int ZERO = 0;
     private static volatile int k = 0;
-    int amount = 10;
+    int amount = 20;
 
     @Scheduled(initialDelay = 0, fixedDelay = 1000)
     public void loadCache() throws Exception {
@@ -51,11 +51,11 @@ public class FlickrServiceImpl implements FlickrService {
     }
 
     @Override
-    public List<PhotoSizeDto> getAllImagesUrl(PhotoDto photoDto, int page, int label) throws Exception {
+    public List<PhotoSizeDto> getAllImagesUrl(PhotoDto photoDto, int page, int label) throws Exception { //todo extract
         List<PhotoSizeDto> urls = getFromCacheOrSite(photoDto);
 
         int toIndex = photoLimit_ * (page + 1) > urls.size() ? urls.size() : photoLimit_ * (page + 1);
-        int fromIndex = page * photoLimit_;
+        int fromIndex = (page * photoLimit_) > urls.size() ? urls.size() : (page * photoLimit_);
 
         return urls.subList(fromIndex, toIndex);
     }

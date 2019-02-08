@@ -66,7 +66,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         List<PhotoSizeDto> listOfPhotoSizeDto = emogiesMap.get(emogie);
 
         int toIndex = photoLimit_ * (page + 1) > listOfPhotoSizeDto.size() ? listOfPhotoSizeDto.size() : photoLimit_ * (page + 1);
-        int fromIndex = page * photoLimit_;
+        int fromIndex = (page * photoLimit_) > listOfPhotoSizeDto.size() ? listOfPhotoSizeDto.size() : (page * photoLimit_);
 
         return listOfPhotoSizeDto.subList(fromIndex, toIndex);
     }
