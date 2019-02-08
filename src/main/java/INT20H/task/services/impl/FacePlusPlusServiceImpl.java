@@ -62,8 +62,13 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
     }
 
     @Override
-    public List<PhotoSizeDto> getAllEmogies(String emogie) {
-        return emogiesMap.get(emogie);
+    public List<PhotoSizeDto> getAllEmogies(String emogie, int page) {
+        List<PhotoSizeDto> listOfPhotoSizeDto = emogiesMap.get(emogie);
+
+        int toIndex = photoLimit_ * (page + 1) > listOfPhotoSizeDto.size() ? listOfPhotoSizeDto.size() : photoLimit_ * (page + 1);
+        int fromIndex = page * photoLimit_;
+
+        return listOfPhotoSizeDto.subList(fromIndex, toIndex);
     }
 
     private List<String> getFaceTokensByUrl(String url) {
