@@ -16,7 +16,7 @@
 
 
       <v-btn small flat class="deep-purple accent-4 white--text text-capitalize font-weight-medium">Fear</v-btn>
-      <v-btn small flat class="blue-grey darken-4 white--text text-capitalize font-weight-medium" @click="getImages('/api/getListOfSizesByEmogy?emogy=neutral')">Neutral</v-btn>
+      <v-btn small flat class="blue-grey darken-4 white--text text-capitalize font-weight-medium" @click="getImages('/api/getListOfSizesByEmogy?emogy=neutral&page=1')">Neutral</v-btn>
     </v-toolbar>
 
 
@@ -30,7 +30,7 @@
       class="container"
     >
       <!--<div v-for="(item, index) in items" :key="index">Item: {{index + 1}}</div>-->
-      <img :src="image[5].source" v-for="(image, i) in images" :key="i" class="item"/>
+      <img :src="image.listOfSizes[5].source" v-for="(image, i) in images" :key="i" class="item"/>
     </masonry>
 
     <!--<span v-for="(image, i) in images" class="items">{{image[5].source}} {{i}}</span>-->
