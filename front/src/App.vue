@@ -6,7 +6,7 @@
       <v-toolbar-title>Filters</v-toolbar-title>
       <v-spacer></v-spacer>
 
-      <v-btn small class="text-capitalize font-weight-medium" @click="getImages">All</v-btn>
+      <v-btn small class="text-capitalize font-weight-medium" @click="getImages('/api/getAllImages?albumId=72157674388093532&tag=int20h')">All</v-btn>
       <v-btn small flat class="red accent-4 white--text text-capitalize font-weight-medium">Anger</v-btn>
       <v-btn small flat class="pink accent-4 white--text text-capitalize font-weight-medium">Surprise</v-btn>
       <v-btn small flat class="yellow darken-4 white--text text-capitalize">Happiness</v-btn>
@@ -16,17 +16,18 @@
 
 
       <v-btn small flat class="deep-purple accent-4 white--text text-capitalize font-weight-medium">Fear</v-btn>
-      <v-btn small flat class="blue-grey darken-4 white--text text-capitalize font-weight-medium">Neutral</v-btn>
+      <v-btn small flat class="blue-grey darken-4 white--text text-capitalize font-weight-medium" @click="getImages('/api/getListOfSizesByEmogy?emogy=neutral')">Neutral</v-btn>
     </v-toolbar>
 
 <magic-grid class="container">
 
   <!--<div class="">-->
-    <img :src="image" v-for="(image, i) in images" class="item"/>
-    <!--<span>{{image}}</span>-->
+    <!--<img :src="image" v-for="(image, i) in images" class="item"/>-->
+
   <!--</div>-->
 
 </magic-grid>
+    <span v-for="(image, i) in images" class="items">{{image}} {{i}}</span>
   </div>
 </template>
 
@@ -42,23 +43,26 @@ export default {
     }
   },
   methods: {
-    getImages() {
+    getImages(link) {
 
       let xmlhttp = new XMLHttpRequest();
-      const url = 'http://localhost:8079/api/getAllImages?albumId=72157674388093532&tag=int20h';
+      const url = `http://localhost:8079${link}`;
 
       xmlhttp.open("GET", url)
       xmlhttp.send()
 
       xmlhttp.onreadystatechange=(e)=> {
-        this.images = JSON.parse(xmlhttp.response)
+        this.images = JSON.parse(xmlhttp.responseText)
       }
 
-    }
+    },
+
+
+
   },
 
   mounted() {
-    this.getImages()
+    // this.getImages()
   }
 }
 </script>
@@ -86,5 +90,9 @@ export default {
   border-radius: 8px;
 }
 
-
+.items{
+  display: block;
+  width: 100%;
+  margin-bottom: 20px;
+}
 </style>
