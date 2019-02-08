@@ -8,6 +8,10 @@ import org.springframework.stereotype.Component;
 public class Configs {
     private String flickrApiKey;
     private String flickrApiSecret;
+
+    private String faceApiKey;
+    private String faceApiSecret;
+
     private String i20HphotosetId;
     private String tag;
     private int photoLimit;
@@ -20,6 +24,10 @@ public class Configs {
     public static String tag_;
     public static int photoLimit_;
     public static int defaultLabel_;
+
+    public static String faceApiKey_; //  = "JNsr371qG2YY0jYB8MLs5M_E9QYsDOt4";
+    public static String faceApiSecret_; // = "3jZxB1BbBeWc6VqQxhmNCFjJFZ";
+
     public void setFlickrApiSecret(String flickrApiSecret) {
         flickrApiSecret_ = this.flickrApiSecret = flickrApiSecret;
     }
@@ -42,5 +50,13 @@ public class Configs {
 
     public void setDefaultLabel_(int defaultLabel) {
         defaultLabel_ = this.defaultLabel = defaultLabel;
+    }
+
+    public void setFaceApiKey(String faceApiKey) {
+        faceApiKey_ = this.faceApiKey = faceApiKey;
+    }
+
+    public void setFaceApiSecret(String faceApiSecret) {
+        faceApiSecret_ = this.faceApiSecret = faceApiSecret;
     }
 }

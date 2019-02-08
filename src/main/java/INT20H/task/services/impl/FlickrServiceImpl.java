@@ -10,6 +10,7 @@ import com.flickr4java.flickr.photos.Photo;
 import com.flickr4java.flickr.photos.PhotoList;
 import com.flickr4java.flickr.photos.SearchParameters;
 import com.flickr4java.flickr.photos.Size;
+import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import static INT20H.task.resources.Configs.*;
 
 @Service
 @Log4j2
+@Data
 public class FlickrServiceImpl implements FlickrService {
 
     private Map<PhotoDto, List<PhotoSizeDto>> urlCache = new HashMap<>();
@@ -30,10 +32,12 @@ public class FlickrServiceImpl implements FlickrService {
 
     @Scheduled(fixedRate = 120*1000)
     public void loadCache() throws Exception {
+        Map<PhotoDto, List<PhotoSizeDto>> urlCacheBuffer = new HashMap<>();
         PhotoDto photoDto = new PhotoDto(i20HphotosetId_, tag_, defaultLabel_);
         List<PhotoSizeDto> imagesUrlFromAlbum = getUrlByAlbumIdAndTag(photoDto);
-        urlCache.put(photoDto, imagesUrlFromAlbum.stream().distinct().collect(Collectors.toList()));
-        log.info("Cache size = " + urlCache.get(photoDto).size());
+        urlCacheBuffer.put(photoDto, imagesUrlFromAlbum.stream().distinct().collect(Collectors.toList()));
+        log.info("Cache size = " + urlCacheBuffer.get(photoDto).size());
+        urlCache = urlCacheBuffer;
     }
 
     private List<PhotoSizeDto> getUrlByAlbumIdAndTag(PhotoDto photoDto) throws Exception {
