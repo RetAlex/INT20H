@@ -26,33 +26,39 @@ import static INT20H.task.utils.Pagination.getByPage;
 @Data
 public class FlickrServiceImpl implements FlickrService {
 
-    private List<PhotoSizeDto> urlCache = new ArrayList<>();
+    private List<PhotoSizeDto> photoCache = new ArrayList<>();
     private Set<String> listOfCachedPhotoId = new HashSet<>();
 
     private static final int ZERO = 0;
-    private static volatile int k = 0;
-    private int amount = 5;
+    private static int k = 0;
+    private int amount = 5; //TODO migrate to Long.MAX_VALUE
 
     @Scheduled(initialDelay = 0, fixedDelay = 1000)
     public void loadCache() throws Exception {
-        if(urlCache.size() > 0) {
-            listOfCachedPhotoId = urlCache.stream().map(PhotoSizeDto::getId).collect(Collectors.toSet());
+        if(photoCache.size() > 0) {
+            listOfCachedPhotoId = photoCache.stream().map(PhotoSizeDto::getId).collect(Collectors.toSet());
         }
 
-        RequestPhotoDto requestPhotoDto = new RequestPhotoDto(i20HphotosetId_, tag_);
-        getUrlByAlbumIdAndTag(requestPhotoDto);
-        log.info("Cache size = " + urlCache.size());
+        RequestPhotoDto searchPhotoDto = new RequestPhotoDto(i20HphotosetId_, tag_);
+        getUrlByAlbumIdAndTag(searchPhotoDto);
+        log.info("Cache size = " + photoCache.size());
     }
 
     @Override
-    public List<PhotoSizeDto> getAllImagesUrl(int page) throws Exception { //todo extract
-        return getByPage(page, urlCache);
+    public List<PhotoSizeDto> getAllImagesUrl(int page) {
+        return getByPage(page, photoCache);
     }
 
     private void getUrlByAlbumIdAndTag(RequestPhotoDto requestPhotoDto) throws Exception {
-        List<PhotoSizeDto> imagesUrlByTag = getListOfNewPhotoSizeDto(requestPhotoDto);
+        List<PhotoSizeDto> listOfPhotoSizeDto = getListOfNewPhotoSizeDto(requestPhotoDto);
 
-        urlCache.addAll(imagesUrlByTag.stream().distinct().collect(Collectors.toList()));
+        photoCache.addAll(removeNotUniqOrNull(listOfPhotoSizeDto));
+    }
+
+    private List<PhotoSizeDto> removeNotUniqOrNull(List<PhotoSizeDto> listOfPhotoSizeDto) {
+        List<PhotoSizeDto> list = listOfPhotoSizeDto.stream().filter(dto -> Objects.nonNull(dto.getListOfSizes())).distinct().collect(Collectors.toList());
+        list.removeIf(dto -> list.stream().filter(e -> e.getId().equals(dto.getId())).collect(Collectors.toList()).size() > 1);
+        return list;
     }
 
     private List<PhotoSizeDto> getListOfNewPhotoSizeDto(RequestPhotoDto requestPhotoDto) throws Exception {
@@ -72,17 +78,6 @@ public class FlickrServiceImpl implements FlickrService {
         return convertToPhotoSizeDtoList(f, photos);
     }
 
-    private List<PhotoSizeDto> convertToPhotoSizeDtoList(Flickr f, PhotoList<Photo> photos) {
-        removeAlreadyCached(photos);
-        return photos.stream().map(Photo::getId).map(id -> getPhotoSizeDto(f, id)).filter(e -> e != null).collect(Collectors.toList());
-    }
-
-    private void removeAlreadyCached(PhotoList<Photo> photos) {
-        if(listOfCachedPhotoId.size() > 0){
-            photos.removeIf(next -> listOfCachedPhotoId.contains(next.getId()));
-        }
-    }
-
     private List<PhotoSizeDto> getImagesUrlByTag(RequestPhotoDto requestPhotoDto, int amount) throws Exception {
         Flickr f = getNewFlickrObject();
         PhotoList<Photo> search = searchByTag(requestPhotoDto, amount, f);
@@ -97,8 +92,15 @@ public class FlickrServiceImpl implements FlickrService {
         return f.getPhotosInterface().search(params, amount, ZERO);
     }
 
-    private Flickr getNewFlickrObject() {
-        return new Flickr(flickrApiKey_, flickrApiSecret_, new REST());
+    private void removeAlreadyCached(PhotoList<Photo> photos) {
+        if(listOfCachedPhotoId.size() > 0){
+            photos.removeIf(next -> listOfCachedPhotoId.contains(next.getId()));
+        }
+    }
+
+    private List<PhotoSizeDto> convertToPhotoSizeDtoList(Flickr f, PhotoList<Photo> photos) {
+        removeAlreadyCached(photos);
+        return photos.stream().map(Photo::getId).map(id -> getPhotoSizeDto(f, id)).collect(Collectors.toList());
     }
 
     private static PhotoSizeDto getPhotoSizeDto(Flickr f, String photoId) {
@@ -110,6 +112,10 @@ public class FlickrServiceImpl implements FlickrService {
             log.error(ex);
         }
         return null;
+    }
+
+    private Flickr getNewFlickrObject() {
+        return new Flickr(flickrApiKey_, flickrApiSecret_, new REST());
     }
 
 

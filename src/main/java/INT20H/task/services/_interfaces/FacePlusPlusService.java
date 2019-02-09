@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface FacePlusPlusService {
     @Scheduled
-    void cacheEmogies();
+    void cacheEmotions();
 
     List<String> getEmotionsByUrl(String url);
     List<PhotoSizeDto> getAllEmogies(String emogie, int page);

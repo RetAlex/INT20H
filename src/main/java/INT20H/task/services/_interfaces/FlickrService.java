@@ -10,5 +10,5 @@ public interface FlickrService {
 
     List<PhotoSizeDto> getAllImagesUrl(int page) throws Exception;
 
-    Map<RequestPhotoDto, List<PhotoSizeDto>> getUrlCache();
+    List<PhotoSizeDto> getPhotoCache();
 }
