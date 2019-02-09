@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -29,10 +30,11 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
     public FacePlusPlusServiceImpl(FlickrService flickrService) {
         this.flickrService = flickrService;
     }
-
+    private String key = "JNsr371qG2YY0jYB8MLs5M_E9QYsDOt4";
+    private String secret = "PO04I-3jZxB1BbBeWc6VqQxhmNCFjJFZ";
     @Override
-    @Scheduled(initialDelay = 10*1000, fixedDelay = 1000)
-    public void cacheEmogies(){
+    @Scheduled(initialDelay = 10 * 1000, fixedDelay = 1000)
+    public void cacheEmogies() {
 
         try {
             Map<String, List<PhotoSizeDto>> emogiesMapBuffer = new HashMap<>(); //extract dto
@@ -57,7 +59,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
 //                }
             }
             emogiesMap = emogiesMapBuffer; //TODO optimize cache, don't cache already parsed image
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error(e);
         }
     }
@@ -83,7 +85,6 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         return tokens;
     }
 
-
     private List<String> getEmoutionsByTokens(List<String> tokens) {
         List<String> emotions = null;
         try {
@@ -97,14 +98,38 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
 
     @Override
     public List<ImageFaceDto> getEmogiesByListOfFaceDto(List<ImageFaceDto> listOfImageFaceDto) {
-//        System.out.println("getEmogiesByListOfFaceDto");
-//        List<String> emotions = null;
-//        try {
-//            List<String> tokens = getFaceTokensByUrl(url);
-//            emotions = getEmoutionsByTokens(tokens);
-//        } catch (Exception e) {
-//            log.error(e);
-//        }
+        System.out.println("getEmogiesByListOfFaceDto");
+        List<String> responce = null;
+        try {
+            listOfImageFaceDto.stream().forEach(image -> {
+                image.setListOfTokens(getFaceTokensByUrl(image.getUrl()));
+            });
+            Map<Integer, List<String>> indexes = new HashMap<>();
+            for (int i = 0; i < listOfImageFaceDto.size(); i++) {
+                List<String> tokens = listOfImageFaceDto.get(i).getListOfTokens();
+                for (int j = 0; j < tokens.size(); j++) {
+                    if (indexes.get(i) == null) indexes.put(i, new ArrayList<>());
+                    indexes.get(i).add(tokens.get(j));
+                    if (indexes.values().stream().mapToInt(List::size).sum() == 5 || i == listOfImageFaceDto.size()-1) {
+                        List<String> list = new ArrayList<>();
+                        indexes.values().forEach(list::addAll);
+                        responce = getEmoutionsByTokens(list);
+                        int f = 0;
+                        int count = 0;
+                        for (Integer t : indexes.keySet()) {
+                             count += indexes.get(t).size();
+                            listOfImageFaceDto.get(t).setEmogies(responce.subList(f, count).stream().collect(Collectors.toSet()));
+                            f = count;
+                        }
+                       indexes = new HashMap<>();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error(e);
+        }
         return listOfImageFaceDto;
     }
+
+
 }
