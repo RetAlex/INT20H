@@ -1,6 +1,5 @@
 package INT20H.task.controllers;
 
-import INT20H.task.exception.IncorrectRequestParamException;
 import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.services._interfaces.FlickrService;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,7 +1,7 @@
 package INT20H.task.services.impl;
 
-import INT20H.task.model.dto.RequestPhotoDto;
 import INT20H.task.model.dto.PhotoSizeDto;
+import INT20H.task.model.dto.RequestPhotoDto;
 import INT20H.task.services._interfaces.FlickrService;
 import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.FlickrException;

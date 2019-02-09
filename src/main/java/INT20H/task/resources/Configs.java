@@ -25,8 +25,8 @@ public class Configs {
     public static int photoLimit_;
     public static int defaultLabel_;
 
-    public static String faceApiKey_; //  = "JNsr371qG2YY0jYB8MLs5M_E9QYsDOt4";
-    public static String faceApiSecret_; // = "3jZxB1BbBeWc6VqQxhmNCFjJFZ";
+    public static String faceApiKey_;//
+    public static String faceApiSecret_;
 
     public void setFlickrApiSecret(String flickrApiSecret) {
         flickrApiSecret_ = this.flickrApiSecret = flickrApiSecret;

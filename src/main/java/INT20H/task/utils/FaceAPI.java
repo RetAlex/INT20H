@@ -2,7 +2,6 @@ package INT20H.task.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.extern.log4j.Log4j2;
 import org.apache.tomcat.util.buf.StringUtils;
 import org.json.JSONArray;
@@ -13,8 +12,8 @@ import java.util.*;
 @Log4j2
 public class FaceAPI {
 
-    private String detectAPI = "https://api-us.faceplusplus.com/facepp/v3/detect";
-    private String faceAnalyzeAPI = "https://api-us.faceplusplus.com/facepp/v3/face/analyze";
+    private static final String detectAPI = "https://api-us.faceplusplus.com/facepp/v3/detect";
+    private static final String faceAnalyzeAPI = "https://api-us.faceplusplus.com/facepp/v3/face/analyze";
 
     public  List<String> getFacesTokens(String key, String secret, String photoUrl) {
         List<String> tokens = new ArrayList<>();
