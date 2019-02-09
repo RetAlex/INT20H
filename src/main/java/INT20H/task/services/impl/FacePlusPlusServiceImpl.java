@@ -23,6 +23,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
     private final FlickrService flickrService;
 
     private Map<String, List<PhotoSizeDto>> emotionsMap = new HashMap<>();
+    private Set<String> listOfCachedId;
     private final static int defaultFaceLabel = 4; //todo
 
     public FacePlusPlusServiceImpl(FlickrService flickrService) {
@@ -32,7 +33,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
     @Override
     @Scheduled(initialDelay = 20*1000, fixedDelay = 1000)
     public void cacheEmotions(){
-        Set<String> listOfCachedId = prepareListOfCachedId();
+        listOfCachedId = getListOfCachedId();
 
         try {
             List<PhotoSizeDto> photoCache = flickrService.getPhotoCache();
@@ -61,7 +62,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         }
     }
 
-    private Set<String> prepareListOfCachedId() {
+    private Set<String> getListOfCachedId() {
         Set<String> listOfCachedId = null;
         if(emotionsMap != null && emotionsMap.size() > 0) {
              listOfCachedId = emotionsMap.entrySet().stream().flatMap(e -> e.getValue().stream()).map(PhotoSizeDto::getId).collect(Collectors.toSet());
@@ -115,7 +116,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
 
 
     public List<ImageFaceDto> setEmotionsForImageFaceDto(List<ImageFaceDto> listOfImageFaceDto) {
-        if(listOfImageFaceDto != null) listOfImageFaceDto.removeIf(e -> listOfImageFaceDto.contains(e.getId()));
+        if(listOfImageFaceDto != null) listOfImageFaceDto.removeIf(e -> listOfCachedId.contains(e.getId()));
 
         List<String> response = null;
         try {
