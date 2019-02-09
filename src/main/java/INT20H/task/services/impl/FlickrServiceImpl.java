@@ -15,11 +15,11 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static INT20H.task.resources.Configs.*;
+import static INT20H.task.utils.Pagination.getByPage;
 
 @Service
 @Log4j2
@@ -27,16 +27,11 @@ import static INT20H.task.resources.Configs.*;
 public class FlickrServiceImpl implements FlickrService {
 
     private List<PhotoSizeDto> urlCache = new ArrayList<>();
-    Set<String> listOfCachedPhotoId = new HashSet<>();
+    private Set<String> listOfCachedPhotoId = new HashSet<>();
 
     private static final int ZERO = 0;
     private static volatile int k = 0;
-    int amount = 5;
-
-    @PostConstruct
-    public void init(){
-
-    }
+    private int amount = 5;
 
     @Scheduled(initialDelay = 0, fixedDelay = 1000)
     public void loadCache() throws Exception {
@@ -44,40 +39,42 @@ public class FlickrServiceImpl implements FlickrService {
             listOfCachedPhotoId = urlCache.stream().map(PhotoSizeDto::getId).collect(Collectors.toSet());
         }
 
-        RequestPhotoDto requestPhotoDto = new RequestPhotoDto(i20HphotosetId_, tag_, defaultLabel_); //extract
+        RequestPhotoDto requestPhotoDto = new RequestPhotoDto(i20HphotosetId_, tag_);
         getUrlByAlbumIdAndTag(requestPhotoDto);
         log.info("Cache size = " + urlCache.size());
     }
 
-    private void getUrlByAlbumIdAndTag(RequestPhotoDto requestPhotoDto) throws Exception {
-        List<PhotoSizeDto> imagesUrlFromAlbum = new ArrayList<>();
-        if(requestPhotoDto.getAlbumId() != null) imagesUrlFromAlbum = getImagesUrlFromAlbum(requestPhotoDto, ZERO, amount);
+    @Override
+    public List<PhotoSizeDto> getAllImagesUrl(int page) throws Exception { //todo extract
+        return getByPage(page, urlCache);
+    }
 
-        List<PhotoSizeDto> imagesUrlByTag = getImagesUrlByTag(requestPhotoDto, ZERO, amount);
-        imagesUrlByTag.addAll(imagesUrlFromAlbum);
+    private void getUrlByAlbumIdAndTag(RequestPhotoDto requestPhotoDto) throws Exception {
+        List<PhotoSizeDto> imagesUrlByTag = getListOfNewPhotoSizeDto(requestPhotoDto);
 
         urlCache.addAll(imagesUrlByTag.stream().distinct().collect(Collectors.toList()));
     }
 
-    @Override
-    public List<PhotoSizeDto> getAllImagesUrl(int page) throws Exception { //todo extract
-        int toIndex = photoLimit_ * (page + 1) > urlCache.size() ? urlCache.size() : photoLimit_ * (page + 1);
-        int fromIndex = (page * photoLimit_) > urlCache.size() ? urlCache.size() : (page * photoLimit_);
+    private List<PhotoSizeDto> getListOfNewPhotoSizeDto(RequestPhotoDto requestPhotoDto) throws Exception {
+        List<PhotoSizeDto> imagesUrlFromAlbum = new ArrayList<>();
+        if(requestPhotoDto.getAlbumId() != null) imagesUrlFromAlbum = getImagesUrlFromAlbum(requestPhotoDto, amount);
 
-        return urlCache.subList(fromIndex, toIndex);
+        List<PhotoSizeDto> imagesUrlByTag = getImagesUrlByTag(requestPhotoDto, amount);
+        imagesUrlByTag.addAll(imagesUrlFromAlbum);
+        return imagesUrlByTag;
     }
 
-    public List<PhotoSizeDto> getImagesUrlFromAlbum(RequestPhotoDto photo, int page, int amount) throws Exception {
-        Flickr f = new Flickr(flickrApiKey_, flickrApiSecret_, new REST());
-        PhotoList<Photo> photos = f.getPhotosetsInterface().getPhotos(photo.getAlbumId(), amount, page);
-        System.out.println("start getImagesUrlFromAlbum");
+    private List<PhotoSizeDto> getImagesUrlFromAlbum(RequestPhotoDto photo, int amount) throws Exception {
+        Flickr f = getNewFlickrObject();
+        PhotoList<Photo> photos = f.getPhotosetsInterface().getPhotos(photo.getAlbumId(), amount, ZERO);
+        log.info("start getImagesUrlFromAlbum");
 
         return convertToPhotoSizeDtoList(f, photos);
     }
 
     private List<PhotoSizeDto> convertToPhotoSizeDtoList(Flickr f, PhotoList<Photo> photos) {
         removeAlreadyCached(photos);
-        return photos.stream().map(Photo::getId).map(id -> getPhotoSizeDto(f, id)).collect(Collectors.toList());
+        return photos.stream().map(Photo::getId).map(id -> getPhotoSizeDto(f, id)).filter(e -> e != null).collect(Collectors.toList());
     }
 
     private void removeAlreadyCached(PhotoList<Photo> photos) {
@@ -86,23 +83,31 @@ public class FlickrServiceImpl implements FlickrService {
         }
     }
 
-    public List<PhotoSizeDto> getImagesUrlByTag(RequestPhotoDto requestPhotoDto, int page, int amount) throws Exception {
-        Flickr f = new Flickr(flickrApiKey_, flickrApiSecret_, new REST());
+    private List<PhotoSizeDto> getImagesUrlByTag(RequestPhotoDto requestPhotoDto, int amount) throws Exception {
+        Flickr f = getNewFlickrObject();
+        PhotoList<Photo> search = searchByTag(requestPhotoDto, amount, f);
+
+        log.info("start getImagesUrlByTag");
+        return convertToPhotoSizeDtoList(f, search);
+    }
+
+    private PhotoList<Photo> searchByTag(RequestPhotoDto requestPhotoDto, int amount, Flickr f) throws FlickrException {
         SearchParameters params = new SearchParameters();
         params.setTags(new String[]{requestPhotoDto.getTag()});
-        PhotoList<Photo> search = f.getPhotosInterface().search(params, amount, page);
+        return f.getPhotosInterface().search(params, amount, ZERO);
+    }
 
-        System.out.println("start getImagesUrlByTag");
-        return convertToPhotoSizeDtoList(f, search);
+    private Flickr getNewFlickrObject() {
+        return new Flickr(flickrApiKey_, flickrApiSecret_, new REST());
     }
 
     private static PhotoSizeDto getPhotoSizeDto(Flickr f, String photoId) {
         try {
             Thread.sleep(50);
-            System.out.println("processing  " + ++k);
+            log.info("Processing getPhotoSizeDto " + k++);
             return new PhotoSizeDto(photoId, (List<Size>) f.getPhotosInterface().getSizes(photoId));
-        } catch (FlickrException | InterruptedException e1) {
-            e1.printStackTrace();
+        } catch (FlickrException | InterruptedException ex) {
+            log.error(ex);
         }
         return null;
     }

@@ -19,11 +19,11 @@ public class FilterController {
         this.facePlusPlusService = facePlusPlusService;
     }
 
-    @GetMapping("/getListOfSizesByEmogy")
-    public List<PhotoSizeDto> getAllImages(@RequestParam(name = "emogy") String emogy,
+    @GetMapping("/getListOfSizesByEmotion")
+    public List<PhotoSizeDto> getAllImages(@RequestParam(name = "emotion") String emotion,
                                            @RequestParam(name = "page", defaultValue = "0", required = false) int page) throws Exception {
         if(page < 0) throw new IncorrectRequestParamException("Page can not be null!");
 
-        return facePlusPlusService.getAllEmogies(emogy, page);
+        return facePlusPlusService.getAllEmogies(emotion, page);
     }
 }

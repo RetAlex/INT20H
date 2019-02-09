@@ -54,14 +54,14 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
 
                 List<String> emotionsByUrl = getEmotionsByUrl(source);
 
-                for (String emogy : emotionsByUrl) {
-                    List<PhotoSizeDto> listOfSizesByEmogy = emogiesMap.get(emogy);
-                    if (listOfSizesByEmogy == null) {
-                        listOfSizesByEmogy = new ArrayList<>();
-                        emogiesMap.put(emogy, listOfSizesByEmogy);
+                for (String emotion : emotionsByUrl) {
+                    List<PhotoSizeDto> listOfSizesByEmotion = emogiesMap.get(emotion);
+                    if (listOfSizesByEmotion == null) {
+                        listOfSizesByEmotion = new ArrayList<>();
+                        emogiesMap.put(emotion, listOfSizesByEmotion);
                         System.out.println("put");
                     } else {
-                        listOfSizesByEmogy.add(new PhotoSizeDto(photoSizeDto.getId(), photoSizeDto.getListOfSizes()));
+                        listOfSizesByEmotion.add(new PhotoSizeDto(photoSizeDto.getId(), photoSizeDto.getListOfSizes()));
                     }
                 }
             }
@@ -82,10 +82,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
     public List<PhotoSizeDto> getAllEmogies(String emogie, int page) {
         List<PhotoSizeDto> listOfPhotoSizeDto = emogiesMap.get(emogie);
 
-        int toIndex = photoLimit_ * (page + 1) > listOfPhotoSizeDto.size() ? listOfPhotoSizeDto.size() : photoLimit_ * (page + 1);
-        int fromIndex = (page * photoLimit_) > listOfPhotoSizeDto.size() ? listOfPhotoSizeDto.size() : (page * photoLimit_);
-
-        return listOfPhotoSizeDto.subList(fromIndex, toIndex);
+        return getPhotoSizeDtos(page, listOfPhotoSizeDto);
     }
 
     private List<String> getFaceTokensByUrl(String url) {
