@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static INT20H.task.exception.IncorrectRequestParamException.invalidPageNumber;
+
 @RestController
 @RequestMapping("/api")
 public class AlbumController {
@@ -21,8 +23,13 @@ public class AlbumController {
 
     @GetMapping("/getAllImages")
     public List<PhotoSizeDto> getAllImages(@RequestParam(name = "page", defaultValue = "0", required = false) int page) throws Exception {
-        if(page < 0) throw new IncorrectRequestParamException("Page can not be null!");
+        if(page < 0) invalidPageNumber();
 
         return flickrService.getAllImagesUrl(page);
+    }
+    @GetMapping("/getAllImagesAmount")
+    public int getAllImagesAmount() {
+
+        return flickrService.getPhotoCache().size();
     }
 }

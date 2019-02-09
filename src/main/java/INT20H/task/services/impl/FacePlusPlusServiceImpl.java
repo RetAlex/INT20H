@@ -47,6 +47,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
                 if (isAlreadyCached(listOfCachedId, photoSizeDto)) continue;
                 addNewPhotoForEmotions(photoSizeDto);
             }
+            log.info("Emotions cache size = " + emotionsMap.size());
         } catch (Exception e){
             log.error(e);
         }
@@ -72,7 +73,6 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
 
     private boolean isAlreadyCached(Set<String> listOfCachedId, PhotoSizeDto photoSizeDto) {
         if(listOfCachedId != null && listOfCachedId.contains(photoSizeDto.getId())){
-            log.info("continue");
             return true;
         }
         return false;
@@ -83,6 +83,11 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         List<PhotoSizeDto> listOfPhotoSizeDto = emotionsMap.get(emogie);
 
         return getByPage(page, listOfPhotoSizeDto);
+    }
+
+    @Override
+    public Map<String, List<PhotoSizeDto>> getEmotionsMap() {
+        return emotionsMap;
     }
 
     private List<String> getFaceTokensByUrl(String url) {

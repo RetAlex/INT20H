@@ -8,7 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -22,8 +25,20 @@ public class FilterController {
     @GetMapping("/getListOfSizesByEmotion")
     public List<PhotoSizeDto> getAllImages(@RequestParam(name = "emotion") String emotion,
                                            @RequestParam(name = "page", defaultValue = "0", required = false) int page) throws Exception {
-        if(page < 0) throw new IncorrectRequestParamException("Page can not be null!");
+        if(page < 0) throw new IncorrectRequestParamException("Page can not lowest than 0!");
 
         return facePlusPlusService.getAllEmogies(emotion, page);
+    }
+
+    @GetMapping("/getImagesAmountByEmotion")
+    public int getAllImagesAmount(@RequestParam(name = "emotion") String emotion) {
+
+        List<PhotoSizeDto> listOfPhoto = facePlusPlusService.getEmotionsMap().get(emotion);
+        return listOfPhoto == null ? 0 : listOfPhoto.size();
+    }
+
+    @GetMapping("/getAvailableEmotions")
+    public List<String> getAvailableEmotions() {
+        return new ArrayList<>(facePlusPlusService.getEmotionsMap().keySet());
     }
 }

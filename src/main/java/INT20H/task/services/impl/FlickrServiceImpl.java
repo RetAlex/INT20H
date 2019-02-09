@@ -31,17 +31,21 @@ public class FlickrServiceImpl implements FlickrService {
 
     private static final int ZERO = 0;
     private static int k = 0;
-    private int amount = 5; //TODO migrate to Long.MAX_VALUE
+    private int amount = 11; //TODO migrate to Long.MAX_VALUE
 
     @Scheduled(initialDelay = 0, fixedDelay = 1000)
-    public void loadCache() throws Exception {
-        if(photoCache.size() > 0) {
-            listOfCachedPhotoId = photoCache.stream().map(PhotoSizeDto::getId).collect(Collectors.toSet());
-        }
+    public void loadCache() {
+        try {
+            if (photoCache.size() > 0) {
+                listOfCachedPhotoId = photoCache.stream().map(PhotoSizeDto::getId).collect(Collectors.toSet());
+            }
 
-        RequestPhotoDto searchPhotoDto = new RequestPhotoDto(i20HphotosetId_, tag_);
-        getUrlByAlbumIdAndTag(searchPhotoDto);
-        log.info("Cache size = " + photoCache.size());
+            RequestPhotoDto searchPhotoDto = new RequestPhotoDto(i20HphotosetId_, tag_);
+            getUrlByAlbumIdAndTag(searchPhotoDto);
+            log.info("Cache size = " + photoCache.size());
+        } catch (Exception e){
+            log.error(e);
+        }
     }
 
     @Override
