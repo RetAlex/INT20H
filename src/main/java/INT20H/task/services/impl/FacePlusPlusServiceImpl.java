@@ -1,5 +1,6 @@
 package INT20H.task.services.impl;
 
+import INT20H.task.model.dto.ImageFaceDto;
 import INT20H.task.model.dto.PhotoDto;
 import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.services._interfaces.FacePlusPlusService;
@@ -44,16 +45,16 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
                 List<Size> listOfSizes = photoSizeDto.getListOfSizes();
                 if (listOfSizes == null) continue;
                 String source = listOfSizes.stream().filter(e -> e.getLabel() == 4).findFirst().get().getSource();
-                List<String> emotionsByUrl = getEmotionsByUrl(source);
-                for (String emogy : emotionsByUrl) {
-                    List<PhotoSizeDto> listOfSizesByEmogy = emogiesMapBuffer.get(emogy);
-                    if (listOfSizesByEmogy == null) {
-                        listOfSizesByEmogy = new ArrayList<>();
-                        emogiesMapBuffer.put(emogy, listOfSizesByEmogy);
-                    } else {
-                        listOfSizesByEmogy.add(new PhotoSizeDto(photoSizeDto.getId(), photoSizeDto.getListOfSizes()));
-                    }
-                }
+//                List<String> emotionsByUrl = getEmogiesByListOfFaceDto(source);
+//                for (String emogy : emotionsByUrl) {
+//                    List<PhotoSizeDto> listOfSizesByEmogy = emogiesMapBuffer.get(emogy);
+//                    if (listOfSizesByEmogy == null) {
+//                        listOfSizesByEmogy = new ArrayList<>();
+//                        emogiesMapBuffer.put(emogy, listOfSizesByEmogy);
+//                    } else {
+//                        listOfSizesByEmogy.add(new PhotoSizeDto(photoSizeDto.getId(), photoSizeDto.getListOfSizes()));
+//                    }
+//                }
             }
             emogiesMap = emogiesMapBuffer; //TODO optimize cache, don't cache already parsed image
         } catch (Exception e){
@@ -95,15 +96,15 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
     }
 
     @Override
-    public List<String> getEmotionsByUrl(String url) {
-        System.out.println("getEmotionsByUrl");
-        List<String> emotions = null;
-        try {
-            List<String> tokens = getFaceTokensByUrl(url);
-            emotions = getEmoutionsByTokens(tokens);
-        } catch (Exception e) {
-            log.error(e);
-        }
-        return emotions;
+    public List<ImageFaceDto> getEmogiesByListOfFaceDto(List<ImageFaceDto> listOfImageFaceDto) {
+//        System.out.println("getEmogiesByListOfFaceDto");
+//        List<String> emotions = null;
+//        try {
+//            List<String> tokens = getFaceTokensByUrl(url);
+//            emotions = getEmoutionsByTokens(tokens);
+//        } catch (Exception e) {
+//            log.error(e);
+//        }
+        return listOfImageFaceDto;
     }
 }
