@@ -1,6 +1,6 @@
 package INT20H.task.services.impl;
 
-import INT20H.task.model.dto.PhotoDto;
+import INT20H.task.model.dto.RequestPhotoDto;
 import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.services._interfaces.FacePlusPlusService;
 import INT20H.task.services._interfaces.FlickrService;
@@ -12,18 +12,17 @@ import org.springframework.stereotype.Service;
 
 import static INT20H.task.resources.Configs.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
 public class FacePlusPlusServiceImpl implements FacePlusPlusService {
 
-    private Map<String, List<PhotoSizeDto>> emogiesMap; //extract dto
-
+    private Map<String, List<PhotoSizeDto>> emogiesMap = new HashMap<>(); //no needs for using thread-safe collection
     private final FlickrService flickrService;
+
+    private final static int defaultFaceLabel = 4;
 
     public FacePlusPlusServiceImpl(FlickrService flickrService) {
         this.flickrService = flickrService;
@@ -32,33 +31,51 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
     @Override
     @Scheduled(initialDelay = 10*1000, fixedDelay = 1000)
     public void cacheEmogies(){
+        Set<String> listOfCachedId = null;
+        if(emogiesMap != null && emogiesMap.size() > 0) {
+             listOfCachedId = emogiesMap.entrySet().stream().flatMap(e -> e.getValue().stream()).map(e -> e.getId()).collect(Collectors.toSet());
+        }
 
         try {
-            Map<String, List<PhotoSizeDto>> emogiesMapBuffer = new HashMap<>(); //extract dto
-
-            PhotoDto photoDto = new PhotoDto(i20HphotosetId_, tag_, defaultLabel_);
-            Map<PhotoDto, List<PhotoSizeDto>> urlCache = flickrService.getUrlCache();
+            RequestPhotoDto requestPhotoDto = new RequestPhotoDto(i20HphotosetId_, tag_, defaultLabel_);
+            Map<RequestPhotoDto, List<PhotoSizeDto>> urlCache = flickrService.getUrlCache();
             if (urlCache == null || urlCache.size() == 0) return;
-            List<PhotoSizeDto> photoSizeDtos = urlCache.get(photoDto);
+
+            List<PhotoSizeDto> photoSizeDtos = urlCache.get(requestPhotoDto);
             for (PhotoSizeDto photoSizeDto : photoSizeDtos) {
+                if (isAlreadyCached(listOfCachedId, photoSizeDto)) continue;
+
                 List<Size> listOfSizes = photoSizeDto.getListOfSizes();
-                if (listOfSizes == null) continue;
-                String source = listOfSizes.stream().filter(e -> e.getLabel() == 4).findFirst().get().getSource();
+                if(listOfSizes == null){
+                    log.info("Empty listOfSizes");
+                    continue;
+                }
+                String source = listOfSizes.stream().filter(e -> e.getLabel() == defaultFaceLabel).findFirst().orElseThrow(() -> new Exception("Default label " + defaultFaceLabel + " not found!")).getSource();
+
                 List<String> emotionsByUrl = getEmotionsByUrl(source);
+
                 for (String emogy : emotionsByUrl) {
-                    List<PhotoSizeDto> listOfSizesByEmogy = emogiesMapBuffer.get(emogy);
+                    List<PhotoSizeDto> listOfSizesByEmogy = emogiesMap.get(emogy);
                     if (listOfSizesByEmogy == null) {
                         listOfSizesByEmogy = new ArrayList<>();
-                        emogiesMapBuffer.put(emogy, listOfSizesByEmogy);
+                        emogiesMap.put(emogy, listOfSizesByEmogy);
+                        System.out.println("put");
                     } else {
                         listOfSizesByEmogy.add(new PhotoSizeDto(photoSizeDto.getId(), photoSizeDto.getListOfSizes()));
                     }
                 }
             }
-            emogiesMap = emogiesMapBuffer; //TODO optimize cache, don't cache already parsed image
         } catch (Exception e){
             log.error(e);
         }
+    }
+
+    private boolean isAlreadyCached(Set<String> listOfCachedId, PhotoSizeDto photoSizeDto) {
+        if(listOfCachedId != null && listOfCachedId.contains(photoSizeDto.getId())){
+            System.out.println("continue");
+            return true;
+        }
+        return false;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package INT20H.task.controllers;
 
+import INT20H.task.exception.IncorrectRequestParamException;
 import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.services._interfaces.FacePlusPlusService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,10 +19,11 @@ public class FilterController {
         this.facePlusPlusService = facePlusPlusService;
     }
 
-
-    @GetMapping("/getListOfSizesByEmogy") //todo validate page >= 0
+    @GetMapping("/getListOfSizesByEmogy")
     public List<PhotoSizeDto> getAllImages(@RequestParam(name = "emogy") String emogy,
                                            @RequestParam(name = "page", defaultValue = "0", required = false) int page) throws Exception {
+        if(page < 0) throw new IncorrectRequestParamException("Page can not be null!");
+
         return facePlusPlusService.getAllEmogies(emogy, page);
     }
 }
