@@ -142,16 +142,15 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
 
         List<String> response = null;
         try {
-            listOfImageFaceDto.forEach(image -> {
-                image.setListOfTokens(getFaceTokensByUrl(image.getUrl()));
-            });
+            listOfImageFaceDto = getTokensForListOfImage(listOfImageFaceDto);
+
             Map<Integer, List<String>> indexes = new HashMap<>();
             for (int i = 0; i < listOfImageFaceDto.size(); i++) {
                 List<String> tokens = listOfImageFaceDto.get(i).getListOfTokens();
                 for (int j = 0; j < tokens.size(); j++) {
                     indexes.computeIfAbsent(i, k -> new ArrayList<>());
                     indexes.get(i).add(tokens.get(j));
-                    if (indexes.values().stream().mapToInt(List::size).sum() == 5 || i == listOfImageFaceDto.size()-1) {
+                    if (indexes.values().stream().mapToInt(List::size).sum() == 5 || i == listOfImageFaceDto.size() - 1) {
                         List<String> list = new ArrayList<>();
                         indexes.values().forEach(list::addAll);
                         response = getEmoutionsByTokens(list);
@@ -172,4 +171,40 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         return listOfImageFaceDto;
     }
 
+    private List<String> getValuesOfMapOfLists(Map<Integer, List<String>> indexes) {
+        List<String> list = new ArrayList<>();
+        try {
+            indexes.values().forEach(list::addAll);
+        } catch (Exception e) {
+            log.error(e);
+        }
+        return list;
+    }
+
+    private List<ImageFaceDto> setGotEmotionsToImages(List<ImageFaceDto> images, List<String> emotions, Map<Integer, List<String>> indexes) {
+        try {
+            int f = 0;
+            int count = 0;
+            for (Integer t : indexes.keySet()) {
+                count += indexes.get(t).size();
+                images.get(t).setEmogies(emotions.subList(f, count).stream().collect(Collectors.toSet()));
+                f = count;
+            }
+        } catch (Exception e) {
+            log.error(e);
+        }
+        return images;
+    }
+
+
+    private List<ImageFaceDto> getTokensForListOfImage(List<ImageFaceDto> images) {
+        try {
+            images.stream().forEach(image -> {
+                image.setListOfTokens(getFaceTokensByUrl(image.getUrl()));
+            });
+        } catch (Exception e) {
+            log.error(e);
+        }
+        return images;
+    }
 }
