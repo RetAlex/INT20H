@@ -1,10 +1,12 @@
 package INT20H.task.services.impl;
 
+import INT20H.task.model.dto.EmotionsDto;
 import INT20H.task.model.dto.ImageFaceDto;
 import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.services._interfaces.FacePlusPlusService;
 import INT20H.task.services._interfaces.FlickrService;
 import INT20H.task.utils.FaceAPI;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -12,56 +14,78 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static INT20H.task.resources.Configs.faceApiKey_;
-import static INT20H.task.resources.Configs.faceApiSecret_;
+import static INT20H.task.resources.Configs.*;
+import static INT20H.task.utils.CacheUtils.*;
 import static INT20H.task.utils.Pagination.getByPage;
 
 @Service
 @Log4j2
 public class FacePlusPlusServiceImpl implements FacePlusPlusService {
-
     private final FlickrService flickrService;
 
-    private Map<String, List<PhotoSizeDto>> emotionsMap = new HashMap<>();
-    private Set<String> listOfCachedId;
-    private final static int defaultFaceLabel = 4; //todo
+    private Map<String, List<PhotoSizeDto>> emotionsMap;
+
+    private Set<String> listOfCachedId = new HashSet<>();
+    private final static String UNKNOWN_EMOTION = "unknown";
 
     public FacePlusPlusServiceImpl(FlickrService flickrService) {
+        emotionsMap = (Map<String, List<PhotoSizeDto>>) loadCacheFromFile(emotionCacheDir, new TypeReference<Map<String, List<PhotoSizeDto>>>() {});
+        if(emotionsMap == null) emotionsMap = new HashMap<>();
         this.flickrService = flickrService;
     }
 
     @Override
-    @Scheduled(initialDelay = 20*1000, fixedDelay = 1000)
+    @Scheduled(initialDelay = 20*1000, fixedDelay = 10000)
     public void cacheEmotions(){
         listOfCachedId = getListOfCachedId();
 
         try {
             List<PhotoSizeDto> photoCache = flickrService.getPhotoCache();
             if (photoCache == null || photoCache.size() == 0){
-                log.info("photoCache null or zero size, can not cache emotions");
+                log.warn("Photo Cache null or zero size, can not cache emotions");
                 return;
             }
 
             List<ImageFaceDto> listOfImageFaceDto = photoCache.stream().map(e -> new ImageFaceDto(e.getId(), getDefaultSource(e), e.getListOfSizes())).collect(Collectors.toList());
             setEmotionsForImageFaceDto(listOfImageFaceDto);
+
             for (ImageFaceDto imageFaceDto : listOfImageFaceDto) {
-                for (String emotion : imageFaceDto.getEmotion()) {
-                    List<PhotoSizeDto> listOfSizesByEmotion = emotionsMap.get(emotion);
-                    if (listOfSizesByEmotion == null) {
-                        listOfSizesByEmotion = new ArrayList<>();
-                        listOfSizesByEmotion.add(new PhotoSizeDto(imageFaceDto.getId(), imageFaceDto.getListOfSizes()));
-                        emotionsMap.put(emotion, listOfSizesByEmotion);
-                    } else {
-                        listOfSizesByEmotion.add(new PhotoSizeDto(imageFaceDto.getId(), imageFaceDto.getListOfSizes()));
-                    }
-                }
+                addNewImageByEmotion(imageFaceDto);
             }
 
-            log.info("Emotions cache size = " + emotionsMap.size());
+            if(emotionsMap.entrySet().size() > 0) storeCache(emotionsMap, emotionCacheDir);
+
+            log.info("Emotions cache size = " + emotionsMap.size() + "; " + "Photo with filtered emotion count = " + listOfCachedId.size());
         } catch (Exception e){
             log.error(e);
         }
     }
+
+    private void addNewImageByEmotion(ImageFaceDto imageFaceDto) {
+        for (String emotion : imageFaceDto.getEmotion()) {
+            putOrUpdate(imageFaceDto, emotion);
+        }
+
+        processNullableEmotion(imageFaceDto);
+    }
+
+    private void putOrUpdate(ImageFaceDto imageFaceDto, String emotion) {
+        List<PhotoSizeDto> listOfSizesByEmotion = emotionsMap.get(emotion);
+        if (listOfSizesByEmotion == null) {
+            listOfSizesByEmotion = new ArrayList<>();
+            listOfSizesByEmotion.add(new PhotoSizeDto(imageFaceDto.getId(), imageFaceDto.getListOfSizes()));
+            emotionsMap.put(emotion, listOfSizesByEmotion);
+        } else {
+            listOfSizesByEmotion.add(new PhotoSizeDto(imageFaceDto.getId(), imageFaceDto.getListOfSizes()));
+        }
+    }
+
+    private void processNullableEmotion(ImageFaceDto imageFaceDto) {
+        if(imageFaceDto.getEmotion().size() == 0){
+            putOrUpdate(imageFaceDto, UNKNOWN_EMOTION);
+        }
+    }
+
 
     private Set<String> getListOfCachedId() {
         Set<String> listOfCachedId = null;
@@ -74,18 +98,13 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
 
 
     private String getDefaultSource(PhotoSizeDto photoSizeDto) {
-        return photoSizeDto.getListOfSizes().stream().filter(e -> e.getLabel() == defaultFaceLabel).findFirst().orElseThrow(() -> new RuntimeException("Can not find defaul label!")).getSource();
-    }
-
-    private boolean isAlreadyCached(Set<String> listOfCachedId, PhotoSizeDto photoSizeDto) {
-        return listOfCachedId != null && listOfCachedId.contains(photoSizeDto.getId());
+        return photoSizeDto.getListOfSizes().stream().filter(e -> e.getLabel() == defaultFaceLabel_).findFirst().orElseThrow(() -> new RuntimeException("Can not find defaul label!")).getSource();
     }
 
     @Override
-    public List<PhotoSizeDto> getAllEmogies(String emotion, int page) {
+    public EmotionsDto getAllEmogies(String emotion, int page) {
         List<PhotoSizeDto> listOfPhotoSizeDto = emotionsMap.get(emotion);
-
-        return getByPage(page, listOfPhotoSizeDto);
+        return new EmotionsDto(listOfPhotoSizeDto.size(), getByPage(page, listOfPhotoSizeDto));
     }
 
     @Override
@@ -94,6 +113,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
     }
 
     private List<String> getFaceTokensByUrl(String url) {
+        log.info("Starting getFaceTokensByUrl");
         List<String> tokens = null;
         try {
             FaceAPI api = new FaceAPI();
@@ -105,6 +125,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
     }
 
     private List<String> getEmoutionsByTokens(List<String> tokens) {
+        log.info("Starting getEmoutionsByTokens");
         List<String> emotions = null;
         try {
             FaceAPI api = new FaceAPI();
@@ -150,6 +171,5 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         }
         return listOfImageFaceDto;
     }
-
 
 }

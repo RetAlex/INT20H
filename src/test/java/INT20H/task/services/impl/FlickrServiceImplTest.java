@@ -28,7 +28,7 @@ public class FlickrServiceImplTest {
     @Test
     public void testAll() throws Exception {
         System.out.println(mockMvc.perform(get("/api/getAllImages?albumId=72157674388093532&tag=int20h")).andDo(print()).andReturn().getResponse().getContentAsString());
-//        List<String> allImagesUrl = (List<String>) flickrService.getAllImagesUrl(new Object());
+//        List<String> allImagesUrl = (List<String>) flickrService.getAllImages(new Object());
 //        assert allImagesUrl.size() == photosPerPage;
 //        allImagesUrl.forEach(e -> {
 //            assert !StringUtils.isEmpty(e);

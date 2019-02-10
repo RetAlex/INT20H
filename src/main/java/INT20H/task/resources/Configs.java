@@ -15,7 +15,7 @@ public class Configs {
     private String i20HphotosetId;
     private String tag;
     private int photoLimit;
-    private int defaultLabel;
+    private int defaultFaceLabel;
 
     public static String flickrApiKey_;
 
@@ -23,14 +23,12 @@ public class Configs {
     public static String i20HphotosetId_;
     public static String tag_;
     public static int photoLimit_;
-    public static int defaultLabel_;
+    public static int defaultFaceLabel_;
 
-    public static String faceApiKey_;//
+    public static String faceApiKey_;
     public static String faceApiSecret_;
 
-    public void setFlickrApiSecret(String flickrApiSecret) {
-        flickrApiSecret_ = this.flickrApiSecret = flickrApiSecret;
-    }
+    public void setFlickrApiSecret(String flickrApiSecret) {flickrApiSecret_ = this.flickrApiSecret = flickrApiSecret;}
 
     public void setI20HphotosetId(String i20HphotosetId) {
         i20HphotosetId_ = this.i20HphotosetId = i20HphotosetId;
@@ -48,15 +46,15 @@ public class Configs {
         flickrApiKey_ = this.flickrApiKey = flickrApiKey;
     }
 
-    public void setDefaultLabel_(int defaultLabel) {
-        defaultLabel_ = this.defaultLabel = defaultLabel;
-    }
-
     public void setFaceApiKey(String faceApiKey) {
         faceApiKey_ = this.faceApiKey = faceApiKey;
     }
 
     public void setFaceApiSecret(String faceApiSecret) {
         faceApiSecret_ = this.faceApiSecret = faceApiSecret;
+    }
+
+    public void setDefaultFaceLabel(int defaultFaceLabel) {
+        defaultFaceLabel_ = this.defaultFaceLabel = defaultFaceLabel;
     }
 }
