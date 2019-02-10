@@ -6,34 +6,86 @@
       <v-toolbar-title>Filters</v-toolbar-title>
       <v-spacer></v-spacer>
 
-      <v-btn small class="text-capitalize font-weight-medium" @click="getImages('/api/getAllImages?albumId=72157674388093532&tag=int20h')">All</v-btn>
-      <v-btn small flat class="red accent-4 white--text text-capitalize font-weight-medium">Anger</v-btn>
-      <v-btn small flat class="pink accent-4 white--text text-capitalize font-weight-medium">Surprise</v-btn>
-      <v-btn small flat class="yellow darken-4 white--text text-capitalize">Happiness</v-btn>
+      <v-btn
+        small
+        class="text-capitalize font-weight-medium"
+        @click="getImages('/api/getAllImages?page=0')">
+        All
+      </v-btn>
 
-      <v-btn small flat class="light-green darken-4 white--text text-capitalize font-weight-medium">Disgust</v-btn>
-      <v-btn small flat class="indigo white--text text-capitalize font-weight-medium">Saddness</v-btn>
+      <v-btn
+        small
+        flat
+        class="red accent-4 white--text text-capitalize font-weight-medium"
+        @click="getImages('/api/getListOfSizesByEmotion?emotion=anger&page=0')">
+        Anger
+      </v-btn>
+
+      <v-btn
+        small
+        flat
+        class="pink accent-4 white--text text-capitalize font-weight-medium"
+        @click="getImages('/api/getListOfSizesByEmotion?emotion=surprise&page=0')">
+        Surprise
+      </v-btn>
+
+      <v-btn
+        small
+        flat
+        class="yellow darken-4 white--text text-capitalize"
+        @click="getImages('/api/getListOfSizesByEmotion?emotion=happiness&page=0')">
+        Happiness
+      </v-btn>
+
+      <v-btn
+        small
+        flat class="light-green darken-4 white--text text-capitalize font-weight-medium"
+        @click="getImages('/api/getListOfSizesByEmotion?emotion=disgust&page=0')">
+        Disgust
+      </v-btn>
+
+      <v-btn
+        small
+        flat
+        class="indigo white--text text-capitalize font-weight-medium">
+        Saddness
+      </v-btn>
 
 
-      <v-btn small flat class="deep-purple accent-4 white--text text-capitalize font-weight-medium">Fear</v-btn>
-      <v-btn small flat class="blue-grey darken-4 white--text text-capitalize font-weight-medium" @click="getImages('/api/getListOfSizesByEmogy?emogy=neutral&page=1')">Neutral</v-btn>
+      <v-btn
+        small
+        flat
+        class="deep-purple accent-4 white--text text-capitalize font-weight-medium">
+        Fear
+      </v-btn>
+
+      <v-btn
+        small
+        flat
+        class="blue-grey darken-4 white--text text-capitalize font-weight-medium"
+        @click="getImages('/api/getListOfSizesByEmotion?emotion=neutral&page=0')">
+        Neutral
+      </v-btn>
+
     </v-toolbar>
 
 
-  <!--<div class="">-->
-
-
-  <!--</div>-->
     <masonry
-      :cols="{default: 4, 1000: 3, 700: 2, 400: 1}"
+      :cols="{default: 2, 1000: 2, 700: 2, 400: 1}"
       :gutter="{default: '30px', 700: '15px'}"
-      class="container"
-    >
-      <!--<div v-for="(item, index) in items" :key="index">Item: {{index + 1}}</div>-->
-      <img :src="image.listOfSizes[5].source" v-for="(image, i) in images" :key="i" class="item">
+      class="container">
+
+      <img :src="image.listOfSizes[7].source" v-for="(image, i) in images" :key="i" class="item">
     </masonry>
 
-    <!--<span v-for="(image, i) in images" class="items">{{image[5].source}} {{i}}</span>-->
+    <v-btn
+      large
+      class="white"
+      v-if="link !== ''"
+      @click="loadMore">
+      Load more
+    </v-btn>
+
   </div>
 </template>
 
@@ -44,35 +96,58 @@ export default {
   name: 'App',
   data() {
     return {
-      images: [
-      ]
+      images: [],
+      link: ''
     }
   },
   methods: {
     getImages(link) {
+      this.link = link;
 
-      let xmlhttp = new XMLHttpRequest();
+      let xml = new XMLHttpRequest();
       const url = `http://localhost:8079${link}`;
 
-      xmlhttp.open("GET", url)
-      xmlhttp.send()
+      xml.open("GET", url);
+      xml.send();
 
-      xmlhttp.onreadystatechange=(e)=> {
-        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+      xml.onreadystatechange=(e)=> {
+        if (xml.readyState === 4 && xml.status === 200) {
 
-          this.images = JSON.parse(xmlhttp.response)
+          this.images = JSON.parse(xml.response)
         }
-        // this.images = xmlhttp.responseXML
       }
-
     },
 
+    loadMore() {
+      // console.log(this.link)
+      let link = this.link.slice(0, -1);
+      let page = parseInt(this.link[this.link.length - 1]);
 
+      page++;
+
+      let xml = new XMLHttpRequest();
+      const url = `http://localhost:8079${link}${page}`;
+
+      xml.open("GET", url);
+      xml.send();
+
+      xml.onreadystatechange=(e)=> {
+        if (xml.readyState === 4 && xml.status === 200) {
+          const newArr = JSON.parse(xml.response);
+
+          for(let i = 0; i < newArr.length; i++) {
+            this.images.push(newArr[i])
+          }
+
+
+        }
+      }
+    }
 
   },
 
   mounted() {
-    // this.getImages()
+    this.getImages('/api/getAllImages?page=0')
   }
 }
 </script>
