@@ -30,7 +30,7 @@
       class="container"
     >
       <!--<div v-for="(item, index) in items" :key="index">Item: {{index + 1}}</div>-->
-      <img :src="image.listOfSizes[5].source" v-for="(image, i) in images" :key="i" class="item"/>
+      <img :src="image.listOfSizes[5].source" v-for="(image, i) in images" :key="i" class="item">
     </masonry>
 
     <!--<span v-for="(image, i) in images" class="items">{{image[5].source}} {{i}}</span>-->
