@@ -49,6 +49,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
                     List<PhotoSizeDto> listOfSizesByEmotion = emotionsMap.get(emotion);
                     if (listOfSizesByEmotion == null) {
                         listOfSizesByEmotion = new ArrayList<>();
+                        listOfSizesByEmotion.add(new PhotoSizeDto(imageFaceDto.getId(), imageFaceDto.getListOfSizes()));
                         emotionsMap.put(emotion, listOfSizesByEmotion);
                     } else {
                         listOfSizesByEmotion.add(new PhotoSizeDto(imageFaceDto.getId(), imageFaceDto.getListOfSizes()));
@@ -116,7 +117,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
 
 
     public List<ImageFaceDto> setEmotionsForImageFaceDto(List<ImageFaceDto> listOfImageFaceDto) {
-        if(listOfImageFaceDto != null) listOfImageFaceDto.removeIf(e -> listOfCachedId.contains(e.getId()));
+        if(listOfCachedId != null) listOfImageFaceDto.removeIf(e -> listOfCachedId.contains(e.getId()));
 
         List<String> response = null;
         try {

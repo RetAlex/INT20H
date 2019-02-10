@@ -26,6 +26,7 @@ public class AlbumController {
 
         return flickrService.getAllImagesUrl(page);
     }
+
     @GetMapping("/getAllImagesAmount")
     public int getAllImagesAmount() {
 
