@@ -52,7 +52,7 @@ public class FlickrServiceImpl implements FlickrService {
             storeCache(photoCache, photoCacheDir);
             log.info("Cache size = " + photoCache.size());
         } catch (Exception e){
-            log.error(e);
+            log.error(e.getStackTrace());
         }
     }
 
