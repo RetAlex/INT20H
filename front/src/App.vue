@@ -153,7 +153,7 @@ export default {
       this.pageCounter = this.pageCounter + 1;
 
       let xml = new XMLHttpRequest();
-      const url = `http://localhost:8079${link}${this.pageCounter}`;
+      const url = `${link}${this.pageCounter}`;
 
       xml.open("GET", url);
       xml.send();
