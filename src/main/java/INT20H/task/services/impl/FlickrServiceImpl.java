@@ -1,5 +1,6 @@
 package INT20H.task.services.impl;
 
+import INT20H.task.model.dto.ImagesDto;
 import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.model.dto.RequestPhotoDto;
 import INT20H.task.services._interfaces.FlickrService;
@@ -56,8 +57,8 @@ public class FlickrServiceImpl implements FlickrService {
     }
 
     @Override
-    public List<PhotoSizeDto> getAllImagesUrl(int page) {
-        return getByPage(page, photoCache);
+    public ImagesDto getAllImages(int page) {
+        return new ImagesDto(photoCache.size(), getByPage(page, photoCache));
     }
 
     private void getUrlByAlbumIdAndTag(RequestPhotoDto requestPhotoDto) throws Exception {

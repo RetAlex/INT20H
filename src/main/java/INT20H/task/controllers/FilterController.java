@@ -1,6 +1,7 @@
 package INT20H.task.controllers;
 
 import INT20H.task.exception.IncorrectRequestParamException;
+import INT20H.task.model.dto.EmotionsDto;
 import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.services._interfaces.FacePlusPlusService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,18 +22,11 @@ public class FilterController {
     }
 
     @GetMapping("/getListOfSizesByEmotion")
-    public List<PhotoSizeDto> getAllImages(@RequestParam(name = "emotion") String emotion,
-                                           @RequestParam(name = "page", defaultValue = "0", required = false) int page) throws Exception {
+    public EmotionsDto getAllImages(@RequestParam(name = "emotion") String emotion,
+                                    @RequestParam(name = "page", defaultValue = "0", required = false) int page) throws Exception {
         if(page < 0) throw new IncorrectRequestParamException("Page can not lowest than 0!");
 
         return facePlusPlusService.getAllEmogies(emotion, page);
-    }
-
-    @GetMapping("/getImagesAmountByEmotion")
-    public int getAllImagesAmount(@RequestParam(name = "emotion") String emotion) {
-
-        List<PhotoSizeDto> listOfPhoto = facePlusPlusService.getEmotionsMap().get(emotion);
-        return listOfPhoto == null ? 0 : listOfPhoto.size();
     }
 
     @GetMapping("/getAvailableEmotions")

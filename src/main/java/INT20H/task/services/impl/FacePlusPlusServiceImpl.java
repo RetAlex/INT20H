@@ -1,5 +1,6 @@
 package INT20H.task.services.impl;
 
+import INT20H.task.model.dto.EmotionsDto;
 import INT20H.task.model.dto.ImageFaceDto;
 import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.services._interfaces.FacePlusPlusService;
@@ -101,9 +102,9 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
     }
 
     @Override
-    public List<PhotoSizeDto> getAllEmogies(String emotion, int page) {
+    public EmotionsDto getAllEmogies(String emotion, int page) {
         List<PhotoSizeDto> listOfPhotoSizeDto = emotionsMap.get(emotion);
-        return getByPage(page, listOfPhotoSizeDto);
+        return new EmotionsDto(listOfPhotoSizeDto.size(), getByPage(page, listOfPhotoSizeDto));
     }
 
     @Override
