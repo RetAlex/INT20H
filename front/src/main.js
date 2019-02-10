@@ -5,6 +5,7 @@ import App from './App'
 import router from './router'
 import Vuetify from 'vuetify'
 import VueMasonry from 'vue-masonry-css'
+// import
 
 Vue.use(VueMasonry);
 
