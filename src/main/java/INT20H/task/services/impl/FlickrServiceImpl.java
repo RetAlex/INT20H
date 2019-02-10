@@ -1,7 +1,7 @@
 package INT20H.task.services.impl;
 
-import INT20H.task.model.dto.PhotoDto;
 import INT20H.task.model.dto.PhotoSizeDto;
+import INT20H.task.model.dto.RequestPhotoDto;
 import INT20H.task.services._interfaces.FlickrService;
 import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.FlickrException;
@@ -19,100 +19,107 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static INT20H.task.resources.Configs.*;
+import static INT20H.task.utils.Pagination.getByPage;
 
 @Service
 @Log4j2
 @Data
 public class FlickrServiceImpl implements FlickrService {
 
-    private Map<PhotoDto, List<PhotoSizeDto>> urlCache = new HashMap<>();
+    private List<PhotoSizeDto> photoCache = new ArrayList<>();
+    private Set<String> listOfCachedPhotoId = new HashSet<>();
+
     private static final int ZERO = 0;
-    private static volatile int k = 0;
-    int amount = 20;
+    private static int k = 0;
+    private int amount = 11; //TODO migrate to Long.MAX_VALUE
 
     @Scheduled(initialDelay = 0, fixedDelay = 1000)
-    public void loadCache() throws Exception {
-        Map<PhotoDto, List<PhotoSizeDto>> urlCacheBuffer = new HashMap<>();
-        PhotoDto photoDto = new PhotoDto(i20HphotosetId_, tag_, defaultLabel_);
-        List<PhotoSizeDto> imagesUrlFromAlbum = getUrlByAlbumIdAndTag(photoDto);
-        urlCacheBuffer.put(photoDto, imagesUrlFromAlbum.stream().distinct().collect(Collectors.toList()));
-        log.info("Cache size = " + urlCacheBuffer.get(photoDto).size());
-        urlCache = urlCacheBuffer;
-    }
+    public void loadCache() {
+        try {
+            if (photoCache.size() > 0) {
+                listOfCachedPhotoId = photoCache.stream().map(PhotoSizeDto::getId).collect(Collectors.toSet());
+            }
 
-    private List<PhotoSizeDto> getUrlByAlbumIdAndTag(PhotoDto photoDto) throws Exception {
-        List<PhotoSizeDto> imagesUrlFromAlbum = new ArrayList<>();
-        if(photoDto.getAlbumId() != null) imagesUrlFromAlbum = getImagesUrlFromAlbum(photoDto, ZERO, amount);
-
-        List<PhotoSizeDto> imagesUrlByTag = getImagesUrlByTag(photoDto, ZERO, amount);
-        imagesUrlByTag.addAll(imagesUrlFromAlbum);
-
-        return imagesUrlByTag;
+            RequestPhotoDto searchPhotoDto = new RequestPhotoDto(i20HphotosetId_, tag_);
+            getUrlByAlbumIdAndTag(searchPhotoDto);
+            log.info("Cache size = " + photoCache.size());
+        } catch (Exception e){
+            log.error(e);
+        }
     }
 
     @Override
-    public List<PhotoSizeDto> getAllImagesUrl(PhotoDto photoDto, int page, int label) throws Exception { //todo extract
-        List<PhotoSizeDto> urls = getFromCacheOrSite(photoDto);
-
-        int toIndex = photoLimit_ * (page + 1) > urls.size() ? urls.size() : photoLimit_ * (page + 1);
-        int fromIndex = (page * photoLimit_) > urls.size() ? urls.size() : (page * photoLimit_);
-
-        return urls.subList(fromIndex, toIndex);
+    public List<PhotoSizeDto> getAllImagesUrl(int page) {
+        return getByPage(page, photoCache);
     }
 
-    private List<PhotoSizeDto> getFromCacheOrSite(PhotoDto photoDto) throws Exception {
-        List<PhotoSizeDto>urls = urlCache.get(photoDto);
-        if(urls == null){
-            urls = getUrlByAlbumIdAndTag(photoDto);
-            urlCache.put(photoDto, urls);
-        }
-        return urls;
+    private void getUrlByAlbumIdAndTag(RequestPhotoDto requestPhotoDto) throws Exception {
+        List<PhotoSizeDto> listOfPhotoSizeDto = getListOfNewPhotoSizeDto(requestPhotoDto);
+
+        photoCache.addAll(removeNotUniqOrNull(listOfPhotoSizeDto));
     }
 
-    public List<PhotoSizeDto> getImagesUrlFromAlbum(PhotoDto photo, int page, int amount) throws Exception {
-        Flickr f = new Flickr(flickrApiKey_, flickrApiSecret_, new REST());
-        PhotoList<Photo> photos = f.getPhotosetsInterface().getPhotos(photo.getAlbumId(), amount, page);
-        System.out.println("start getImagesUrlFromAlbum");
-
-        return photos.stream().map(Photo::getId).map(id -> getPhotoSizeDto(f, id)).collect(Collectors.toList());
+    private List<PhotoSizeDto> removeNotUniqOrNull(List<PhotoSizeDto> listOfPhotoSizeDto) {
+        List<PhotoSizeDto> list = listOfPhotoSizeDto.stream().filter(dto -> Objects.nonNull(dto.getListOfSizes())).distinct().collect(Collectors.toList());
+        list.removeIf(dto -> list.stream().filter(e -> e.getId().equals(dto.getId())).collect(Collectors.toList()).size() > 1);
+        return list;
     }
 
-    public List<PhotoSizeDto> getImagesUrlByTag(PhotoDto photoDto, int page, int amount) throws Exception {
-        Flickr f = new Flickr(flickrApiKey_, flickrApiSecret_, new REST());
+    private List<PhotoSizeDto> getListOfNewPhotoSizeDto(RequestPhotoDto requestPhotoDto) throws Exception {
+        List<PhotoSizeDto> imagesUrlFromAlbum = new ArrayList<>();
+        if(requestPhotoDto.getAlbumId() != null) imagesUrlFromAlbum = getImagesUrlFromAlbum(requestPhotoDto, amount);
+
+        List<PhotoSizeDto> imagesUrlByTag = getImagesUrlByTag(requestPhotoDto, amount);
+        imagesUrlByTag.addAll(imagesUrlFromAlbum);
+        return imagesUrlByTag;
+    }
+
+    private List<PhotoSizeDto> getImagesUrlFromAlbum(RequestPhotoDto photo, int amount) throws Exception {
+        Flickr f = getNewFlickrObject();
+        PhotoList<Photo> photos = f.getPhotosetsInterface().getPhotos(photo.getAlbumId(), amount, ZERO);
+        log.info("start getImagesUrlFromAlbum");
+
+        return convertToPhotoSizeDtoList(f, photos);
+    }
+
+    private List<PhotoSizeDto> getImagesUrlByTag(RequestPhotoDto requestPhotoDto, int amount) throws Exception {
+        Flickr f = getNewFlickrObject();
+        PhotoList<Photo> search = searchByTag(requestPhotoDto, amount, f);
+
+        log.info("start getImagesUrlByTag");
+        return convertToPhotoSizeDtoList(f, search);
+    }
+
+    private PhotoList<Photo> searchByTag(RequestPhotoDto requestPhotoDto, int amount, Flickr f) throws FlickrException {
         SearchParameters params = new SearchParameters();
-        params.setTags(new String[]{photoDto.getTag()});
-        PhotoList<Photo> search = f.getPhotosInterface().search(params, amount, page);
-        System.out.println("start getImagesUrlByTag");
-        return search.stream().map(Photo::getId).map(id -> getPhotoSizeDto(f, id)).collect(Collectors.toList());
+        params.setTags(new String[]{requestPhotoDto.getTag()});
+        return f.getPhotosInterface().search(params, amount, ZERO);
+    }
+
+    private void removeAlreadyCached(PhotoList<Photo> photos) {
+        if(listOfCachedPhotoId.size() > 0){
+            photos.removeIf(next -> listOfCachedPhotoId.contains(next.getId()));
+        }
+    }
+
+    private List<PhotoSizeDto> convertToPhotoSizeDtoList(Flickr f, PhotoList<Photo> photos) {
+        removeAlreadyCached(photos);
+        return photos.stream().map(Photo::getId).map(id -> getPhotoSizeDto(f, id)).collect(Collectors.toList());
     }
 
     private static PhotoSizeDto getPhotoSizeDto(Flickr f, String photoId) {
         try {
             Thread.sleep(50);
-            System.out.println("processing  " + ++k);
+            log.info("Processing getPhotoSizeDto " + k++);
             return new PhotoSizeDto(photoId, (List<Size>) f.getPhotosInterface().getSizes(photoId));
-        } catch (FlickrException | InterruptedException e1) {
-            e1.printStackTrace();
+        } catch (FlickrException | InterruptedException ex) {
+            log.error(ex);
         }
         return null;
     }
 
-//    public static String getSourceUrlFromSize(Flickr f, String id, PhotoDto photoDto) {
-//        try {
-//            return (f.getPhotosInterface().getSizes(id)).stream().peek(e -> getPhotoSizeDto(photoDto, f, e.)).getSource();
-//        } catch (FlickrException e) {
-//            log.error(e);
-//            return null;
-//        }
-//    }
-
-    private static String getUrlFromPhoto(Photo photo){
-        try {
-            return photo.getOriginalUrl();
-        } catch (FlickrException e) {
-            log.error(e);
-            return null;
-        }
+    private Flickr getNewFlickrObject() {
+        return new Flickr(flickrApiKey_, flickrApiSecret_, new REST());
     }
 
 

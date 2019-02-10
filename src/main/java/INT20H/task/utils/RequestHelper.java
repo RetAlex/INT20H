@@ -1,6 +1,5 @@
 package INT20H.task.utils;
 
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 

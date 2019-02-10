@@ -7,8 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class PhotoDto {
+public class RequestPhotoDto {
     private String albumId;
     private String tag;
-    private Integer label;
 }
