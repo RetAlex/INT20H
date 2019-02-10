@@ -57,7 +57,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
 
             log.info("Emotions cache size = " + emotionsMap.size() + "; " + "Photo with filtered emotion count = " + listOfCachedId.size());
         } catch (Exception e){
-            log.error(e);
+            log.error(e.getStackTrace());
         }
     }
 
