@@ -53,6 +53,7 @@ public class FaceAPI {
                 emotions.add(keyOfMax);
             }
         } catch (Exception e) {
+            log.error(e);
 
         }
         return emotions;
@@ -72,9 +73,6 @@ public class FaceAPI {
         return new JSONObject(response).getJSONArray("faces");
     }
 
-    private String mapToString(HashMap<String, String> map) throws JsonProcessingException {
-        return new ObjectMapper().writeValueAsString(map).toString();
-    }
 }
 
 
