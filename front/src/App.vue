@@ -61,7 +61,8 @@
       <v-btn
         small
         flat
-        class="indigo white--text text-capitalize font-weight-medium">
+        class="indigo white--text text-capitalize font-weight-medium"
+        @click="getImages('/api/getListOfSizesByEmotion?emotion=saddness&page=0')">
         Saddness
       </v-btn>
 
@@ -69,7 +70,8 @@
       <v-btn
         small
         flat
-        class="deep-purple accent-4 white--text text-capitalize font-weight-medium">
+        class="deep-purple accent-4 white--text text-capitalize font-weight-medium"
+        @click="getImages('/api/getListOfSizesByEmotion?emotion=fear&page=0')">
         Fear
       </v-btn>
 
