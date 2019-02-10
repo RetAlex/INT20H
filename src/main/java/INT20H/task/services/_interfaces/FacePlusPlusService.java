@@ -16,5 +16,4 @@ public interface FacePlusPlusService {
 
     Map<String, List<PhotoSizeDto>> getEmotionsMap();
 
-    List<ImageFaceDto> setEmotionsForImageFaceDto(List<ImageFaceDto> listOfImageFaceDto);
 }

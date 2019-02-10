@@ -32,8 +32,7 @@ public class FaceAPI {
     public List<String> getEmotionsByFaceTokens(String key, String secret, List<String> tokens) {
         List<String> emotions = new ArrayList<>();
         try {
-            if (tokens.size() > 5)
-                throw new FaceAPIException("The number of tokens must be less than or equal to five!");
+            if (tokens.size() > 5)tokens.subList(0, 5);
             if (tokens.isEmpty()) return emotions;
             String response = RequestHelper.doPost(faceAnalyzeAPI, createParamsToFaceAnalyzAPI(key, secret, tokens));
             JSONArray faces = getFaces(response);

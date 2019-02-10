@@ -47,7 +47,11 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
             }
 
             List<ImageFaceDto> listOfImageFaceDto = photoCache.stream().map(e -> new ImageFaceDto(e.getId(), getDefaultSource(e), e.getListOfSizes())).collect(Collectors.toList());
-            setEmotionsForImageFaceDto(listOfImageFaceDto);
+            if(listOfCachedId != null) listOfImageFaceDto.removeIf(e -> listOfCachedId.contains(e.getId()));
+            for (ImageFaceDto imageFaceDto : listOfImageFaceDto) {
+                List<String> emotionsByUrl = getEmotionsByUrl(imageFaceDto.getUrl());
+                imageFaceDto.setEmotion(new HashSet<>(emotionsByUrl));
+            }
 
             for (ImageFaceDto imageFaceDto : listOfImageFaceDto) {
                 addNewImageByEmotion(imageFaceDto);
@@ -137,31 +141,31 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
     }
 
 
-    public List<ImageFaceDto> setEmotionsForImageFaceDto(List<ImageFaceDto> listOfImageFaceDto) {
-        if(listOfCachedId != null) listOfImageFaceDto.removeIf(e -> listOfCachedId.contains(e.getId()));
-
-        List<String> response;
-        try {
-            listOfImageFaceDto = getTokensForListOfImage(listOfImageFaceDto);
-
-            Map<Integer, List<String>> indexes = new HashMap<>();
-            for (int i = 0; i < listOfImageFaceDto.size(); i++) {
-                List<String> tokens = listOfImageFaceDto.get(i).getListOfTokens();
-                for (String token : tokens) {
-                    indexes.computeIfAbsent(i, k -> new ArrayList<>());
-                    indexes.get(i).add(token);
-                    if (indexes.values().stream().mapToInt(List::size).sum() == 5 || i == listOfImageFaceDto.size() - 1) {
-                        response = getEmoutionsByTokens(getValuesOfMapOfLists(indexes));
-                        listOfImageFaceDto = setGotEmotionsToImages(listOfImageFaceDto, response, indexes);
-                        indexes = new HashMap<>();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            log.error(e);
-        }
-        return listOfImageFaceDto;
-    }
+//    public List<ImageFaceDto> setEmotionsForImageFaceDto(List<ImageFaceDto> listOfImageFaceDto) {
+//        if(listOfCachedId != null) listOfImageFaceDto.removeIf(e -> listOfCachedId.contains(e.getId()));
+//
+//        List<String> response;
+//        try {
+//            listOfImageFaceDto = getTokensForListOfImage(listOfImageFaceDto);
+//
+//            Map<Integer, List<String>> indexes = new HashMap<>();
+//            for (int i = 0; i < listOfImageFaceDto.size(); i++) {
+//                List<String> tokens = listOfImageFaceDto.get(i).getListOfTokens();
+//                for (String token : tokens) {
+//                    indexes.computeIfAbsent(i, k -> new ArrayList<>());
+//                    indexes.get(i).add(token);
+//                    if (indexes.values().stream().mapToInt(List::size).sum() == 5 || i == listOfImageFaceDto.size() - 1) {
+//                        response = getEmoutionsByTokens(getValuesOfMapOfLists(indexes));
+//                        listOfImageFaceDto = setGotEmotionsToImages(listOfImageFaceDto, response, indexes);
+//                        indexes = new HashMap<>();
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            log.error(e);
+//        }
+//        return listOfImageFaceDto;
+//    }
 
     private List<String> getValuesOfMapOfLists(Map<Integer, List<String>> indexes) {
         List<String> list = new ArrayList<>();
