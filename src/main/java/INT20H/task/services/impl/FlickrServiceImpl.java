@@ -62,7 +62,7 @@ public class FlickrServiceImpl implements FlickrService {
     }
 
     private void getUrlByAlbumIdAndTag(RequestPhotoDto requestPhotoDto) throws Exception {
-        List<PhotoSizeDto> listOfPhotoSizeDto = getListOfNewPhotoSizeDto(requestPhotoDto, Integer.MAX_VALUE);
+        List<PhotoSizeDto> listOfPhotoSizeDto = getListOfNewPhotoSizeDto(requestPhotoDto, 50);
 
         photoCache.addAll(removeNotUniqOrNull(listOfPhotoSizeDto));
     }
