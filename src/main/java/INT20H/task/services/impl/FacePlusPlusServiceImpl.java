@@ -140,28 +140,20 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
     public List<ImageFaceDto> setEmotionsForImageFaceDto(List<ImageFaceDto> listOfImageFaceDto) {
         if(listOfCachedId != null) listOfImageFaceDto.removeIf(e -> listOfCachedId.contains(e.getId()));
 
-        List<String> response = null;
+        List<String> response;
         try {
             listOfImageFaceDto = getTokensForListOfImage(listOfImageFaceDto);
 
             Map<Integer, List<String>> indexes = new HashMap<>();
             for (int i = 0; i < listOfImageFaceDto.size(); i++) {
                 List<String> tokens = listOfImageFaceDto.get(i).getListOfTokens();
-                for (int j = 0; j < tokens.size(); j++) {
+                for (String token : tokens) {
                     indexes.computeIfAbsent(i, k -> new ArrayList<>());
-                    indexes.get(i).add(tokens.get(j));
+                    indexes.get(i).add(token);
                     if (indexes.values().stream().mapToInt(List::size).sum() == 5 || i == listOfImageFaceDto.size() - 1) {
-                        List<String> list = new ArrayList<>();
-                        indexes.values().forEach(list::addAll);
-                        response = getEmoutionsByTokens(list);
-                        int f = 0;
-                        int count = 0;
-                        for (Integer t : indexes.keySet()) {
-                             count += indexes.get(t).size();
-                            listOfImageFaceDto.get(t).setEmotion(new HashSet<>(response.subList(f, count)));
-                            f = count;
-                        }
-                       indexes = new HashMap<>();
+                        response = getEmoutionsByTokens(getValuesOfMapOfLists(indexes));
+                        listOfImageFaceDto = setGotEmotionsToImages(listOfImageFaceDto, response, indexes);
+                        indexes = new HashMap<>();
                     }
                 }
             }
@@ -187,7 +179,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
             int count = 0;
             for (Integer t : indexes.keySet()) {
                 count += indexes.get(t).size();
-                images.get(t).setEmogies(emotions.subList(f, count).stream().collect(Collectors.toSet()));
+                images.get(t).setEmotion(new HashSet<>(emotions.subList(f, count)));
                 f = count;
             }
         } catch (Exception e) {
@@ -199,7 +191,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
 
     private List<ImageFaceDto> getTokensForListOfImage(List<ImageFaceDto> images) {
         try {
-            images.stream().forEach(image -> {
+            images.forEach(image -> {
                 image.setListOfTokens(getFaceTokensByUrl(image.getUrl()));
             });
         } catch (Exception e) {

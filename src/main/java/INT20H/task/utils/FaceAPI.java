@@ -1,7 +1,6 @@
 package INT20H.task.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import INT20H.task.utils.exceptions.FaceAPIException;
 import lombok.extern.log4j.Log4j2;
 import org.apache.tomcat.util.buf.StringUtils;
 import org.json.JSONArray;
@@ -12,18 +11,13 @@ import java.util.*;
 @Log4j2
 public class FaceAPI {
 
-    private static final String detectAPI = "https://api-us.faceplusplus.com/facepp/v3/detect";
-    private static final String faceAnalyzeAPI = "https://api-us.faceplusplus.com/facepp/v3/face/analyze";
+    private String detectAPI = "https://api-us.faceplusplus.com/facepp/v3/detect";
+    private String faceAnalyzeAPI = "https://api-us.faceplusplus.com/facepp/v3/face/analyze";
 
-    public  List<String> getFacesTokens(String key, String secret, String photoUrl) {
+    public List<String> getFacesTokens(String key, String secret, String photoUrl) {
         List<String> tokens = new ArrayList<>();
         try {
-            HashMap<String, String> map = new HashMap<>();
-            map.put("api_key", key);
-            map.put("api_secret", secret);
-            map.put("image_url", photoUrl);
-            String response = RequestHelper.doPost(detectAPI, map);
-
+            String response = RequestHelper.doPost(detectAPI, createParamsToDetectAPI(key, secret, photoUrl));
             JSONArray arr = getFaces(response);
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject face = arr.getJSONObject(i);
@@ -38,13 +32,9 @@ public class FaceAPI {
     public List<String> getEmotionsByFaceTokens(String key, String secret, List<String> tokens) {
         List<String> emotions = new ArrayList<>();
         try {
-            Map<String, String> map = new HashMap<>();
-            map.put("api_key", key);
-            map.put("api_secret", secret);
-            map.put("face_tokens", StringUtils.join(tokens, ','));
-            map.put("return_attributes", "emotion");
-            String response = RequestHelper.doPost(faceAnalyzeAPI, map);
-
+            if (tokens.size() > 5)
+                throw new FaceAPIException("The number of tokens must be less than or equal to five!");
+            String response = RequestHelper.doPost(faceAnalyzeAPI, createParamsToFaceAnalyzAPI(key, secret, tokens));
             JSONArray faces = getFaces(response);
             for (int i = 0; i < faces.length(); i++) {
                 JSONObject emotion = faces.getJSONObject(i).getJSONObject("attributes").getJSONObject("emotion");
@@ -54,9 +44,33 @@ public class FaceAPI {
             }
         } catch (Exception e) {
             log.error(e);
-
         }
         return emotions;
+    }
+
+    private Map<String, String> createParamsToFaceAnalyzAPI(String key, String secret, List<String> tokens) {
+        HashMap<String, String> map = new HashMap<>();
+        try {
+            map.put("api_key", key);
+            map.put("api_secret", secret);
+            map.put("face_tokens", StringUtils.join(tokens, ','));
+            map.put("return_attributes", "emotion");
+        } catch (Exception e) {
+            log.error(e);
+        }
+        return map;
+    }
+
+    private Map<String, String> createParamsToDetectAPI(String key, String secret, String url) {
+        HashMap<String, String> map = new HashMap<>();
+        try {
+            map.put("api_key", key);
+            map.put("api_secret", secret);
+            map.put("image_url", url);
+        } catch (Exception e) {
+            log.error(e);
+        }
+        return map;
     }
 
     private Map<String, Double> toMap(JSONObject object) {
