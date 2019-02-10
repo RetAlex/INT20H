@@ -63,6 +63,12 @@ public class CacheUtils {
             if (fileNum != 0) {
                 if(!new File(pathToCacheFolder + cacheDir + "/" + list[list.length - 1]).delete()) throw new Exception("Can not delete cache file!");
             }
+
+            if(list != null && list.length > 2) {
+                for(int i = 1; i < list.length; i++){
+                    new File(pathToCacheFolder + cacheDir + "/" + list[i]).delete();
+                }
+            }
         } catch (Exception e){
             log.error("Can not store cache:\n " + e);
         }
