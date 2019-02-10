@@ -34,6 +34,7 @@ public class FaceAPI {
         try {
             if (tokens.size() > 5)
                 throw new FaceAPIException("The number of tokens must be less than or equal to five!");
+            if (tokens.isEmpty()) return emotions;
             String response = RequestHelper.doPost(faceAnalyzeAPI, createParamsToFaceAnalyzAPI(key, secret, tokens));
             JSONArray faces = getFaces(response);
             for (int i = 0; i < faces.length(); i++) {

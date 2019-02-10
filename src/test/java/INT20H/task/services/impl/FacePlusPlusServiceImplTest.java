@@ -21,14 +21,14 @@ public class FacePlusPlusServiceImplTest {
 
     @Test
     public void getEmogiesByListOfFaceDto() {
-//        List<ImageFaceDto> imageFaceDtos = new ArrayList<>();
-//        imageFaceDtos.add(new ImageFaceDto("id1", "https://liza.ua/wp-content/uploads/2016/02/smile.jpg"));
-//        imageFaceDtos.add(new ImageFaceDto("id2", "https://liza.ua/wp-content/uploads/2016/02/smile.jpg"));
-//        imageFaceDtos.add(new ImageFaceDto("id3", "https://uroki4mam.ru/wp-content/uploads/2014/06/rebenok-plachet-na-krovati1.jpg"));
-//        imageFaceDtos.add(new ImageFaceDto("id4", "https://liza.ua/wp-content/uploads/2016/02/smile.jpg"));
-//        imageFaceDtos.add(new ImageFaceDto("id5", "https://uroki4mam.ru/wp-content/uploads/2014/06/rebenok-plachet-na-krovati1.jpg"));
-//
-//        List<ImageFaceDto> emogiesByListOfFaceDto = facePlusPlusService.setEmotionsForImageFaceDto(imageFaceDtos);
-//        System.out.println(emogiesByListOfFaceDto);
+        List<ImageFaceDto> imageFaceDtos = new ArrayList<>();
+        imageFaceDtos.add(new ImageFaceDto("id1", "https://liza.ua/wp-content/uploads/2016/02/smile.jpg", null));
+        imageFaceDtos.add(new ImageFaceDto("id2", "https://liza.ua/wp-content/uploads/2016/02/smile.jpg", null));
+        imageFaceDtos.add(new ImageFaceDto("id3", "https://uroki4mam.ru/wp-content/uploads/2014/06/rebenok-plachet-na-krovati1.jpg", null));
+        imageFaceDtos.add(new ImageFaceDto("id4", "https://liza.ua/wp-content/uploads/2016/02/smile.jpg",null));
+        imageFaceDtos.add(new ImageFaceDto("id5", "https://uroki4mam.ru/wp-content/uploads/2014/06/rebenok-plachet-na-krovati1.jpg", null));
+
+        List<ImageFaceDto> emogiesByListOfFaceDto = facePlusPlusService.setEmotionsForImageFaceDto(imageFaceDtos);
+        System.out.println(emogiesByListOfFaceDto);
     }
 }
