@@ -25,5 +25,4 @@ public class ImageFaceDto {
         listOfTokens = new ArrayList<>();
         emotion = new HashSet<>();
     }
-
 }
