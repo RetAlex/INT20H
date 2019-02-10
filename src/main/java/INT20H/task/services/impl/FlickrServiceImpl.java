@@ -35,7 +35,7 @@ public class FlickrServiceImpl implements FlickrService {
     private static int counter = 0;
 
     public FlickrServiceImpl() {
-        photoCache = (List<PhotoSizeDto>) loadCacheFromFile(photoCacheDir, new TypeReference<List<PhotoSizeDto>>() {});
+//        photoCache = (List<PhotoSizeDto>) loadCacheFromFile(photoCacheDir, new TypeReference<List<PhotoSizeDto>>() {});
         if(photoCache == null) photoCache = new ArrayList<>();
         log.info("Successfully read list of " + photoCache.size() + " elements from file!");
     }
@@ -62,7 +62,7 @@ public class FlickrServiceImpl implements FlickrService {
     }
 
     private void getUrlByAlbumIdAndTag(RequestPhotoDto requestPhotoDto) throws Exception {
-        List<PhotoSizeDto> listOfPhotoSizeDto = getListOfNewPhotoSizeDto(requestPhotoDto, Integer.MAX_VALUE);
+        List<PhotoSizeDto> listOfPhotoSizeDto = getListOfNewPhotoSizeDto(requestPhotoDto, 5);
 
         photoCache.addAll(removeNotUniqOrNull(listOfPhotoSizeDto));
     }
