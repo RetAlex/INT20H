@@ -35,7 +35,7 @@ public class FaceAPI {
             if (tokens.size() > 5) {
                 List<String> emotionsByFaceTokens = getEmotionsByFaceTokens(key, secret, tokens.subList(0, 5 > tokens.size() ? tokens.size() : 5));
                 emotions.addAll(emotionsByFaceTokens);
-                tokens = tokens.subList(0, 5);
+                tokens = tokens.subList(0, 5 > tokens.size() ? tokens.size() : 5);
             }
             if (tokens.isEmpty()) return emotions;
 
