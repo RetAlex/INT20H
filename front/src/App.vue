@@ -94,7 +94,7 @@
 
     <stack :column-min-width="320" :gutter-width="8" :gutter-height="8" monitor-images-loaded>
       <stack-item v-for="(image, i) in images" :key="i" style="transition: left 300ms, top 300ms">
-        <img :src="image.listOfSizes[7].source"/>
+        <img :src="image.listOfSizes[5].source"/>
       </stack-item>
     </stack>
 
@@ -116,7 +116,7 @@ export default {
   name: 'App',
   data() {
     return {
-      loader: false,
+      loader: true,
       images: [],
       link: '',
       pageCounter: 0
@@ -125,11 +125,12 @@ export default {
   components: { Stack, StackItem },
   methods: {
     getImages(link) {
+
       this.loader = true;
       this.link = link;
 
       let xml = new XMLHttpRequest();
-      const url = `http://localhost:8079${link}`;
+      const url = `${link}`;
 
       xml.open("GET", url);
       xml.send();
@@ -175,7 +176,7 @@ export default {
   },
 
   mounted() {
-    this.getImages('/api/getAllImages?page=0')
+    this.getImages('/api/getAllImages?page=0');
   }
 }
 </script>
@@ -209,7 +210,7 @@ img {
   left: 0;
   width: 100%;
   height: 100%;
-  position: absolute;
+  position: fixed;
 
   display: flex;
   align-items: center;
