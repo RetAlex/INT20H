@@ -3,6 +3,7 @@ package INT20H.task.services.impl;
 import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.model.dto.RequestPhotoDto;
 import INT20H.task.services._interfaces.FlickrService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.FlickrException;
 import com.flickr4java.flickr.REST;
@@ -19,29 +20,35 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static INT20H.task.resources.Configs.*;
+import static INT20H.task.utils.CacheUtils.*;
 import static INT20H.task.utils.Pagination.getByPage;
 
 @Service
 @Log4j2
 @Data
 public class FlickrServiceImpl implements FlickrService {
+    private List<PhotoSizeDto> photoCache;
 
-    private List<PhotoSizeDto> photoCache = new ArrayList<>();
-    private Set<String> listOfCachedPhotoId = new HashSet<>();
-
+    private Set<String> setOfCachedPhotoId = new HashSet<>();
     private static final int ZERO = 0;
-    private static int k = 0;
-    private int amount = 11; //TODO migrate to Long.MAX_VALUE
+    private static int counter = 0;
 
-    @Scheduled(initialDelay = 0, fixedDelay = 1000)
+    public FlickrServiceImpl() {
+        photoCache = (List<PhotoSizeDto>) loadCacheFromFile(photoCacheDir, new TypeReference<List<PhotoSizeDto>>() {});
+        if(photoCache == null) photoCache = new ArrayList<>();
+        log.info("Successfully read list of " + photoCache.size() + " elements from file!");
+    }
+
+    @Scheduled(initialDelay = 0, fixedDelay = 10000)
     public void loadCache() {
         try {
             if (photoCache.size() > 0) {
-                listOfCachedPhotoId = photoCache.stream().map(PhotoSizeDto::getId).collect(Collectors.toSet());
+                setOfCachedPhotoId = photoCache.stream().map(PhotoSizeDto::getId).collect(Collectors.toSet());
             }
 
             RequestPhotoDto searchPhotoDto = new RequestPhotoDto(i20HphotosetId_, tag_);
             getUrlByAlbumIdAndTag(searchPhotoDto);
+            storeCache(photoCache, photoCacheDir);
             log.info("Cache size = " + photoCache.size());
         } catch (Exception e){
             log.error(e);
@@ -54,7 +61,7 @@ public class FlickrServiceImpl implements FlickrService {
     }
 
     private void getUrlByAlbumIdAndTag(RequestPhotoDto requestPhotoDto) throws Exception {
-        List<PhotoSizeDto> listOfPhotoSizeDto = getListOfNewPhotoSizeDto(requestPhotoDto);
+        List<PhotoSizeDto> listOfPhotoSizeDto = getListOfNewPhotoSizeDto(requestPhotoDto, Integer.MAX_VALUE);
 
         photoCache.addAll(removeNotUniqOrNull(listOfPhotoSizeDto));
     }
@@ -65,7 +72,7 @@ public class FlickrServiceImpl implements FlickrService {
         return list;
     }
 
-    private List<PhotoSizeDto> getListOfNewPhotoSizeDto(RequestPhotoDto requestPhotoDto) throws Exception {
+    private List<PhotoSizeDto> getListOfNewPhotoSizeDto(RequestPhotoDto requestPhotoDto, int amount) throws Exception {
         List<PhotoSizeDto> imagesUrlFromAlbum = new ArrayList<>();
         if(requestPhotoDto.getAlbumId() != null) imagesUrlFromAlbum = getImagesUrlFromAlbum(requestPhotoDto, amount);
 
@@ -97,8 +104,8 @@ public class FlickrServiceImpl implements FlickrService {
     }
 
     private void removeAlreadyCached(PhotoList<Photo> photos) {
-        if(listOfCachedPhotoId.size() > 0){
-            photos.removeIf(next -> listOfCachedPhotoId.contains(next.getId()));
+        if(setOfCachedPhotoId.size() > 0){
+            photos.removeIf(next -> setOfCachedPhotoId.contains(next.getId()));
         }
     }
 
@@ -110,7 +117,7 @@ public class FlickrServiceImpl implements FlickrService {
     private static PhotoSizeDto getPhotoSizeDto(Flickr f, String photoId) {
         try {
             Thread.sleep(50);
-            log.info("Processing getPhotoSizeDto " + k++);
+            log.info("Processing getPhotoSizeDto " + counter++);
             return new PhotoSizeDto(photoId, (List<Size>) f.getPhotosInterface().getSizes(photoId));
         } catch (FlickrException | InterruptedException ex) {
             log.error(ex);
