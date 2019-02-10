@@ -32,8 +32,12 @@ public class FaceAPI {
     public List<String> getEmotionsByFaceTokens(String key, String secret, List<String> tokens) {
         List<String> emotions = new ArrayList<>();
         try {
-            if (tokens.size() > 5)tokens.subList(0, 5);
+            if (tokens.size() > 5) {
+                List<String> emotionsByFaceTokens = getEmotionsByFaceTokens(key, secret, tokens.subList(0, 5 > tokens.size() ? tokens.size() : 5));
+                emotions.addAll(emotionsByFaceTokens);
+            }
             if (tokens.isEmpty()) return emotions;
+
             String response = RequestHelper.doPost(faceAnalyzeAPI, createParamsToFaceAnalyzAPI(key, secret, tokens));
             JSONArray faces = getFaces(response);
             for (int i = 0; i < faces.length(); i++) {
