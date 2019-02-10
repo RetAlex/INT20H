@@ -199,4 +199,16 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         }
         return images;
     }
+
+    public List<String> getEmotionsByUrl(String url) {
+        System.out.println("getEmotionsByUrl");
+        List<String> emotions = null;
+        try {
+            List<String> tokens = getFaceTokensByUrl(url);
+            emotions = getEmoutionsByTokens(tokens);
+        } catch (Exception e) {
+            log.error(e);
+        }
+        return emotions;
+    }
 }
