@@ -32,9 +32,6 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         this.flickrService = flickrService;
     }
 
-    private String key = "JNsr371qG2YY0jYB8MLs5M_E9QYsDOt4";
-    private String secret = "PO04I-3jZxB1BbBeWc6VqQxhmNCFjJFZ";
-
     @Override
     @Scheduled(initialDelay = 10 * 1000, fixedDelay = 1000)
     public void cacheEmogies() {
@@ -81,7 +78,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         List<String> tokens = null;
         try {
             FaceAPI api = new FaceAPI();
-            tokens = api.getFacesTokens(key, secret, url);
+            tokens = api.getFacesTokens(faceApiKey_, faceApiSecret_, url);
         } catch (Exception e) {
             log.error(e);
         }
@@ -92,7 +89,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         List<String> emotions = null;
         try {
             FaceAPI api = new FaceAPI();
-            emotions = api.getEmotionsByFaceTokens(key, secret, tokens);
+            emotions = api.getEmotionsByFaceTokens(faceApiKey_, faceApiSecret_, tokens);
         } catch (Exception e) {
             log.error(e);
         }

@@ -10,7 +10,12 @@ public class Configs {
     private String flickrApiSecret;
 
     private String faceApiKey;
+
+
     private String faceApiSecret;
+
+    private String detectAPI;
+    private String faceAnalyzeAPI;
 
     private String i20HphotosetId;
     private String tag;
@@ -18,6 +23,9 @@ public class Configs {
     private int defaultLabel;
 
     public static String flickrApiKey_;
+
+    public static String detectAPI_;
+    public static String faceAnalyzeAPI_;
 
     public static String flickrApiSecret_;
     public static String i20HphotosetId_;
@@ -58,5 +66,14 @@ public class Configs {
 
     public void setFaceApiSecret(String faceApiSecret) {
         faceApiSecret_ = this.faceApiSecret = faceApiSecret;
+    }
+
+
+    public void setDetectAPI(String detectAPI) {
+        detectAPI_ = this.detectAPI = detectAPI;
+    }
+
+    public void setFaceAnalyzeAPI(String faceAnalyzeAPI) {
+        faceApiSecret_ = this.faceAnalyzeAPI = faceAnalyzeAPI;
     }
 }

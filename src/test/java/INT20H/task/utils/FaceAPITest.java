@@ -1,6 +1,7 @@
 package INT20H.task.utils;
 
 import INT20H.task._main.TaskApplication;
+import INT20H.task.utils.exceptions.FaceAPIException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +28,7 @@ public class FaceAPITest {
     }
 
     @Test
-    public void getEmotionsByFaceTokens() {
+    public void getEmotionsByFaceTokens() throws FaceAPIException {
         List<String> tokens = new ArrayList<String>(Arrays.asList("da89a2c98fc7dedbf4eeb9a8e6babe2a"));
         System.out.println(api.getEmotionsByFaceTokens(key, secret, tokens));
     }
