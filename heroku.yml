@@ -1,0 +1,5 @@
+build:
+  docker:
+    web: Dockerfile
+run:
+  web: mvn clean install -Dmaven.test.skip=true spring-boot:run

@@ -11,7 +11,6 @@ services:
         target: /Project/
         bind:
           propagation: share
-      - "/home/.m2"
       - type: bind
         source: ./front/dist/static
         target: /Project/src/main/resources/static
