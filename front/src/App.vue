@@ -62,7 +62,7 @@
         small
         flat
         class="indigo white--text text-capitalize font-weight-medium"
-        @click="getImages('/api/getListOfSizesByEmotion?emotion=saddness&page=0')">
+        @click="getImages('/api/getListOfSizesByEmotion?emotion=sadness&page=0')">
         Saddness
       </v-btn>
 

@@ -13,9 +13,9 @@ import java.util.*;
 @Log4j2
 public class CacheUtils {
 
-    private final static String pathToCacheFolder = "src/main/resources/";
-    public final static  String photoCacheDir = "/photoCache";
-    public final static  String emotionCacheDir = "/emotionCache";
+    private final static String pathToCacheFolder = "";
+    public final static  String photoCacheDir = "photoCache";
+    public final static  String emotionCacheDir = "emotionCache";
 
     public static Object loadCacheFromFile(String cacheDir, TypeReference typeReference) {
         try {
