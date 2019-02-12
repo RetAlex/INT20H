@@ -13,7 +13,7 @@ import java.util.*;
 @Log4j2
 public class CacheUtils {
 
-    private final static String pathToCacheFolder = "";
+    private final static String pathToCacheFolder = "/app/";
     public final static  String photoCacheDir = "photoCache";
     public final static  String emotionCacheDir = "emotionCache";
 
