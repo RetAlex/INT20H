@@ -4,7 +4,7 @@ import INT20H.task.model.dto.PhotoSizeDto;
 
 import java.util.List;
 
-import static INT20H.task.resources.Configs.photoLimit_;
+import static INT20H.task.resources.configuration.FlickrConfig.photoLimit_;
 
 public class Pagination {
 

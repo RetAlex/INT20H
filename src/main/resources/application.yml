@@ -1,0 +1,13 @@
+server:
+  port: 8091
+
+flickr:
+  int20h:
+    apiKey: bfd4c6af1cec67be3a5aa2b4c296b3f0
+    apiSecret: 10a56939cf4647fd
+
+face:
+  defaultLabel: 9
+  int20h:
+    apiKey: JNsr371qG2YY0jYB8MLs5M_E9QYsDOt4
+    apiSecret: PO04I-3jZxB1BbBeWc6VqQxhmNCFjJFZ

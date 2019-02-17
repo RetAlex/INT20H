@@ -3,35 +3,40 @@ package INT20H.task.services.impl;
 import INT20H.task.model.dto.EmotionsDto;
 import INT20H.task.model.dto.ImageFaceDto;
 import INT20H.task.model.dto.PhotoSizeDto;
+import INT20H.task.model.properties.FaceProperties;
 import INT20H.task.services._interfaces.FacePlusPlusService;
 import INT20H.task.services._interfaces.FlickrService;
 import INT20H.task.utils.FaceAPI;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static INT20H.task.resources.Configs.*;
+import static INT20H.task.resources.configuration.FaceConfig.defaultLabel;
 import static INT20H.task.utils.CacheUtils.*;
 import static INT20H.task.utils.Pagination.getByPage;
 
-@Service
 @Log4j2
 public class FacePlusPlusServiceImpl implements FacePlusPlusService {
-    private final FlickrService flickrService;
+
+    @Autowired
+    private FlickrService flickrService;
 
     private Map<String, List<PhotoSizeDto>> emotionsMap;
 
     private Set<String> listOfCachedId = new HashSet<>();
     private final static String UNKNOWN_EMOTION = "unknown";
+    private final String faceApiSecret;
+    private final String faceApiKey;
 
-    public FacePlusPlusServiceImpl(FlickrService flickrService) {
+    public FacePlusPlusServiceImpl(FaceProperties faceProperties) {
+        this.faceApiSecret = faceProperties.getApiSecret();
+        this.faceApiKey = faceProperties.getApiKey();
         emotionsMap = (Map<String, List<PhotoSizeDto>>) loadCacheFromFile(emotionCacheDir, new TypeReference<Map<String, List<PhotoSizeDto>>>() {});
         if(emotionsMap == null) emotionsMap = new HashMap<>();
-        this.flickrService = flickrService;
     }
 
     @Override
@@ -102,7 +107,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
 
 
     private String getDefaultSource(PhotoSizeDto photoSizeDto) {
-        return photoSizeDto.getListOfSizes().stream().filter(e -> e.getLabel() == defaultFaceLabel_).findFirst().orElseThrow(() -> new RuntimeException("Can not find defaul label!")).getSource();
+        return photoSizeDto.getListOfSizes().stream().filter(e -> e.getLabel() == defaultLabel).findFirst().orElseThrow(() -> new RuntimeException("Can not find defaul label!")).getSource();
     }
 
     @Override
@@ -121,7 +126,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         List<String> tokens = null;
         try {
             FaceAPI api = new FaceAPI();
-            tokens = api.getFacesTokens(faceApiKey_, faceApiSecret_, url);
+            tokens = api.getFacesTokens(faceApiKey, faceApiSecret, url);
         } catch (Exception e) {
             log.error(e);
         }
@@ -133,7 +138,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
         List<String> emotions = null;
         try {
             FaceAPI api = new FaceAPI();
-            emotions = api.getEmotionsByFaceTokens(faceApiKey_, faceApiSecret_, tokens);
+            emotions = api.getEmotionsByFaceTokens(faceApiKey, faceApiSecret, tokens);
         } catch (Exception e) {
             log.error(e);
         }

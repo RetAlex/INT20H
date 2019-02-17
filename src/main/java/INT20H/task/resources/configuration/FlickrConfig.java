@@ -1,11 +1,15 @@
-package INT20H.task.resources;
+package INT20H.task.resources.configuration;
 
+import INT20H.task.model.properties.FlickrProperties;
+import lombok.Data;
+import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-@ConfigurationProperties(prefix = "int20h")
+@ConfigurationProperties(prefix = "flickr")
 @Component
-public class Configs {
+@Data
+public class FlickrConfig {
     private String flickrApiKey;
     private String flickrApiSecret;
 
@@ -17,6 +21,8 @@ public class Configs {
     private int photoLimit;
     private int defaultFaceLabel;
 
+    private FlickrProperties int20h;
+
     public static String flickrApiKey_;
 
     public static String flickrApiSecret_;
@@ -27,6 +33,7 @@ public class Configs {
 
     public static String faceApiKey_;
     public static String faceApiSecret_;
+
 
     public void setFlickrApiSecret(String flickrApiSecret) {flickrApiSecret_ = this.flickrApiSecret = flickrApiSecret;}
 

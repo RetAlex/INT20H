@@ -3,15 +3,11 @@ package INT20H.task.services.impl;
 import INT20H.task.model.dto.ImagesDto;
 import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.model.dto.RequestPhotoDto;
+import INT20H.task.services._interfaces.FlickrApiService;
 import INT20H.task.services._interfaces.FlickrService;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.flickr4java.flickr.Flickr;
-import com.flickr4java.flickr.FlickrException;
-import com.flickr4java.flickr.REST;
 import com.flickr4java.flickr.photos.Photo;
 import com.flickr4java.flickr.photos.PhotoList;
-import com.flickr4java.flickr.photos.SearchParameters;
-import com.flickr4java.flickr.photos.Size;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,7 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static INT20H.task.resources.Configs.*;
+import static INT20H.task.resources.configuration.FlickrConfig.*;
 import static INT20H.task.utils.CacheUtils.*;
 import static INT20H.task.utils.Pagination.getByPage;
 
@@ -33,8 +29,10 @@ public class FlickrServiceImpl implements FlickrService {
     private Set<String> setOfCachedPhotoId = new HashSet<>();
     private static final int ZERO = 0;
     private static int counter = 0;
+    private final FlickrApiService flickrApiService;
 
-    public FlickrServiceImpl() {
+    public FlickrServiceImpl(FlickrApiService flickrApiService) {
+        this.flickrApiService = flickrApiService;
         photoCache = (List<PhotoSizeDto>) loadCacheFromFile(photoCacheDir, new TypeReference<List<PhotoSizeDto>>() {});
         if(photoCache == null) photoCache = new ArrayList<>();
         log.info("Successfully read list of " + photoCache.size() + " elements from file!");
@@ -83,25 +81,17 @@ public class FlickrServiceImpl implements FlickrService {
     }
 
     private List<PhotoSizeDto> getImagesUrlFromAlbum(RequestPhotoDto photo, int amount) throws Exception {
-        Flickr f = getNewFlickrObject();
-        PhotoList<Photo> photos = f.getPhotosetsInterface().getPhotos(photo.getAlbumId(), amount, ZERO);
+        PhotoList<Photo> photos = flickrApiService.getPhotosByAlbumId(photo, amount);
         log.info("start getImagesUrlFromAlbum");
 
-        return convertToPhotoSizeDtoList(f, photos);
+        return convertToPhotoSizeDtoList(photos);
     }
 
     private List<PhotoSizeDto> getImagesUrlByTag(RequestPhotoDto requestPhotoDto, int amount) throws Exception {
-        Flickr f = getNewFlickrObject();
-        PhotoList<Photo> search = searchByTag(requestPhotoDto, amount, f);
+        PhotoList<Photo> search = flickrApiService.searchByTag(requestPhotoDto, amount);
 
         log.info("start getImagesUrlByTag");
-        return convertToPhotoSizeDtoList(f, search);
-    }
-
-    private PhotoList<Photo> searchByTag(RequestPhotoDto requestPhotoDto, int amount, Flickr f) throws FlickrException {
-        SearchParameters params = new SearchParameters();
-        params.setTags(new String[]{requestPhotoDto.getTag()});
-        return f.getPhotosInterface().search(params, amount, ZERO);
+        return convertToPhotoSizeDtoList(search);
     }
 
     private void removeAlreadyCached(PhotoList<Photo> photos) {
@@ -110,25 +100,9 @@ public class FlickrServiceImpl implements FlickrService {
         }
     }
 
-    private List<PhotoSizeDto> convertToPhotoSizeDtoList(Flickr f, PhotoList<Photo> photos) {
+    private List<PhotoSizeDto> convertToPhotoSizeDtoList(PhotoList<Photo> photos) {
         removeAlreadyCached(photos);
-        return photos.stream().map(Photo::getId).map(id -> getPhotoSizeDto(f, id)).collect(Collectors.toList());
+        return photos.stream().map(Photo::getId).map(flickrApiService::getPhotoSizeDto).collect(Collectors.toList());
     }
-
-    private static PhotoSizeDto getPhotoSizeDto(Flickr f, String photoId) {
-        try {
-            Thread.sleep(50);
-            log.info("Processing getPhotoSizeDto " + counter++);
-            return new PhotoSizeDto(photoId, (List<Size>) f.getPhotosInterface().getSizes(photoId));
-        } catch (FlickrException | InterruptedException ex) {
-            log.error(ex);
-        }
-        return null;
-    }
-
-    private Flickr getNewFlickrObject() {
-        return new Flickr(flickrApiKey_, flickrApiSecret_, new REST());
-    }
-
 
 }
