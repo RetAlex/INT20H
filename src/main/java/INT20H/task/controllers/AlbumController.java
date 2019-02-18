@@ -1,7 +1,7 @@
 package INT20H.task.controllers;
 
 import INT20H.task.model.dto.ImagesDto;
-import INT20H.task.services._interfaces.FlickrService;
+import INT20H.task.services.interfaces.FlickrService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

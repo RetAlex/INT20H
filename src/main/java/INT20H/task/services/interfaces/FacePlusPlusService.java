@@ -1,7 +1,6 @@
-package INT20H.task.services._interfaces;
+package INT20H.task.services.interfaces;
 
 import INT20H.task.model.dto.EmotionsDto;
-import INT20H.task.model.dto.ImageFaceDto;
 import INT20H.task.model.dto.PhotoSizeDto;
 import org.springframework.scheduling.annotation.Scheduled;
 

@@ -1,6 +1,5 @@
 package INT20H.task.utils;
 
-import INT20H.task.model.dto.PhotoSizeDto;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
@@ -8,18 +7,19 @@ import lombok.extern.log4j.Log4j2;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.util.*;
+import java.util.Arrays;
+
+import static INT20H.task.resources.configuration.FlickrConfig.rootCacheDir;
 
 @Log4j2
 public class CacheUtils {
 
-    private final static String pathToCacheFolder = "/app/";
     public final static  String photoCacheDir = "photoCache";
     public final static  String emotionCacheDir = "emotionCache";
 
     public static Object loadCacheFromFile(String cacheDir, TypeReference typeReference) {
         try {
-            File dir = new File(pathToCacheFolder + cacheDir);
+            File dir = new File(rootCacheDir + cacheDir);
             String[] list = dir.list();
             if (!dir.exists() || list == null || list.length == 0) return null;
             Arrays.sort(list);
@@ -34,7 +34,7 @@ public class CacheUtils {
 
     public static void storeCache(Object cache, String cacheDir) {
         try {
-            File dir = new File(pathToCacheFolder + cacheDir);
+            File dir = new File(rootCacheDir + cacheDir);
             if (!dir.exists() && !dir.mkdirs())
                 throw new Exception("Can not create new dir with path + " + dir.getPath());
 
@@ -61,12 +61,12 @@ public class CacheUtils {
             log.info("Stored cache");
 
             if (fileNum != 0) {
-                if(!new File(pathToCacheFolder + cacheDir + "/" + list[list.length - 1]).delete()) throw new Exception("Can not delete cache file!");
+                if(!new File(rootCacheDir + cacheDir + "/" + list[list.length - 1]).delete()) throw new Exception("Can not delete cache file!");
             }
 
             if(list != null && list.length > 2) {
                 for(int i = 1; i < list.length; i++){
-                    new File(pathToCacheFolder + cacheDir + "/" + list[i]).delete();
+                    new File(rootCacheDir + cacheDir + "/" + list[i]).delete();
                 }
             }
         } catch (Exception e){

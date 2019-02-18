@@ -1,11 +1,11 @@
-package INT20H.task.services.impl;
+package INT20H.task.services.impl.face;
 
 import INT20H.task.model.dto.EmotionsDto;
 import INT20H.task.model.dto.ImageFaceDto;
 import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.model.properties.FaceProperties;
-import INT20H.task.services._interfaces.FacePlusPlusService;
-import INT20H.task.services._interfaces.FlickrService;
+import INT20H.task.services.interfaces.FacePlusPlusService;
+import INT20H.task.services.interfaces.FlickrService;
 import INT20H.task.utils.FaceAPI;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.log4j.Log4j2;

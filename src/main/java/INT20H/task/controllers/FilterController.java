@@ -2,8 +2,7 @@ package INT20H.task.controllers;
 
 import INT20H.task.exception.IncorrectRequestParamException;
 import INT20H.task.model.dto.EmotionsDto;
-import INT20H.task.model.dto.PhotoSizeDto;
-import INT20H.task.services._interfaces.FacePlusPlusService;
+import INT20H.task.services.interfaces.FacePlusPlusService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

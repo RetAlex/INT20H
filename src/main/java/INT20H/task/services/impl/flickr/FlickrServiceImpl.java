@@ -1,10 +1,10 @@
-package INT20H.task.services.impl;
+package INT20H.task.services.impl.flickr;
 
 import INT20H.task.model.dto.ImagesDto;
 import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.model.dto.RequestPhotoDto;
-import INT20H.task.services._interfaces.FlickrApiService;
-import INT20H.task.services._interfaces.FlickrService;
+import INT20H.task.services.interfaces.FlickrApiService;
+import INT20H.task.services.interfaces.FlickrService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.flickr4java.flickr.photos.Photo;
 import com.flickr4java.flickr.photos.PhotoList;
@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,10 +26,7 @@ import static INT20H.task.utils.Pagination.getByPage;
 @Data
 public class FlickrServiceImpl implements FlickrService {
     private List<PhotoSizeDto> photoCache;
-
     private Set<String> setOfCachedPhotoId = new HashSet<>();
-    private static final int ZERO = 0;
-    private static int counter = 0;
     private final FlickrApiService flickrApiService;
 
     public FlickrServiceImpl(FlickrApiService flickrApiService) {
@@ -39,6 +37,7 @@ public class FlickrServiceImpl implements FlickrService {
     }
 
     @Scheduled(initialDelay = 0, fixedDelay = 10000)
+    @Override
     public void loadCache() {
         try {
             if (photoCache.size() > 0) {
@@ -50,10 +49,9 @@ public class FlickrServiceImpl implements FlickrService {
             storeCache(photoCache, photoCacheDir);
             log.info("Cache size = " + photoCache.size());
         } catch (Exception e){
-            log.error(e.getStackTrace());
+            e.printStackTrace();
         }
     }
-
     @Override
     public ImagesDto getAllImages(int page) {
         return new ImagesDto(photoCache.size(), getByPage(page, photoCache));

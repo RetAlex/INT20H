@@ -1,10 +1,10 @@
 package INT20H.task.config;
 
 import INT20H.task.resources.ApiConfig;
-import INT20H.task.services._interfaces.FacePlusPlusService;
-import INT20H.task.services._interfaces.FlickrApiService;
-import INT20H.task.services.impl.FacePlusPlusServiceImpl;
-import INT20H.task.services.impl.FlickrApiServiceImpl;
+import INT20H.task.services.interfaces.FacePlusPlusService;
+import INT20H.task.services.interfaces.FlickrApiService;
+import INT20H.task.services.impl.face.FacePlusPlusServiceImpl;
+import INT20H.task.services.impl.flickr.FlickrApiServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

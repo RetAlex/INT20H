@@ -2,9 +2,8 @@ server:
   port: 8091
 
 flickr:
-  rootCacheDir: /app/
   i20HphotosetId: 72157674388093532
-  tag: int20h
+  rootCacheDir: /app/test/
   int20h:
     apiKey: bfd4c6af1cec67be3a5aa2b4c296b3f0
     apiSecret: 10a56939cf4647fd

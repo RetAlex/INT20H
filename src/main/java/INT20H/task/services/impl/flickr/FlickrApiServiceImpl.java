@@ -1,9 +1,9 @@
-package INT20H.task.services.impl;
+package INT20H.task.services.impl.flickr;
 
 import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.model.dto.RequestPhotoDto;
 import INT20H.task.model.properties.FlickrProperties;
-import INT20H.task.services._interfaces.FlickrApiService;
+import INT20H.task.services.interfaces.FlickrApiService;
 import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.FlickrException;
 import com.flickr4java.flickr.REST;
@@ -22,7 +22,7 @@ public class FlickrApiServiceImpl implements FlickrApiService {
     private final static int ZERO = 0;
 
     public FlickrApiServiceImpl(FlickrProperties properties) {
-        this.client = new Flickr(properties.getApiKey(), properties.getApiSecret(), new REST()); //
+        this.client = new Flickr(properties.getApiKey(), properties.getApiSecret(), new REST());
     }
 
     @Override

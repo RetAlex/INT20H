@@ -1,4 +1,4 @@
-package INT20H.task._main;
+package INT20H.task.main;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
