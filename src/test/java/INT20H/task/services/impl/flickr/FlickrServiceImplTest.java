@@ -3,6 +3,7 @@ package INT20H.task.services.impl.flickr;
 import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.services.interfaces.FlickrApiService;
 import INT20H.task.services.interfaces.FlickrService;
+import INT20H.task.utils.CacheUtils;
 import com.flickr4java.flickr.FlickrException;
 import com.flickr4java.flickr.photos.Photo;
 import com.flickr4java.flickr.photos.PhotoList;
@@ -15,13 +16,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = FlickrTestConfig.class)
@@ -33,6 +36,8 @@ public class FlickrServiceImplTest {
     private FlickrService flickrService;
     @Resource
     private FlickrApiService flickrApiService;
+    @Resource
+    private CacheUtils cacheUtils;
 
     @Test
     public void loadCache() throws FlickrException {
@@ -51,8 +56,12 @@ public class FlickrServiceImplTest {
         });
 
         flickrService.loadCache();
-
+        verify(cacheUtils, times(1)).storeCache(flickrService.getPhotoCache(), CacheUtils.photoCacheDir);
         assertEquals(listOfExpectedId, flickrService.getPhotoCache().stream().map(PhotoSizeDto::getId).collect(Collectors.toList()));
+
+        assertEquals(0, ((FlickrServiceImpl)flickrService).getSetOfCachedPhotoId().size());
+        flickrService.loadCache();
+        assertEquals(listOfExpectedId.size(), ((FlickrServiceImpl)flickrService).getSetOfCachedPhotoId().size());
     }
 
     private List<String> fillPhotoLists(List<Photo> byTag, List<Photo> byAlbumId){

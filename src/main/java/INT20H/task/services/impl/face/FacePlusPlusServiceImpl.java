@@ -6,6 +6,7 @@ import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.model.properties.FaceProperties;
 import INT20H.task.services.interfaces.FacePlusPlusService;
 import INT20H.task.services.interfaces.FlickrService;
+import INT20H.task.utils.CacheUtils;
 import INT20H.task.utils.FaceAPI;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.log4j.Log4j2;
@@ -31,11 +32,12 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
     private final static String UNKNOWN_EMOTION = "unknown";
     private final String faceApiSecret;
     private final String faceApiKey;
+    final static CacheUtils cacheUtils = new CacheUtils();
 
     public FacePlusPlusServiceImpl(FaceProperties faceProperties) {
         this.faceApiSecret = faceProperties.getApiSecret();
         this.faceApiKey = faceProperties.getApiKey();
-        emotionsMap = (Map<String, List<PhotoSizeDto>>) loadCacheFromFile(emotionCacheDir, new TypeReference<Map<String, List<PhotoSizeDto>>>() {});
+        emotionsMap = (Map<String, List<PhotoSizeDto>>) cacheUtils.loadCacheFromFile(emotionCacheDir, new TypeReference<Map<String, List<PhotoSizeDto>>>() {});
         if(emotionsMap == null) emotionsMap = new HashMap<>();
     }
 
@@ -62,7 +64,7 @@ public class FacePlusPlusServiceImpl implements FacePlusPlusService {
                 addNewImageByEmotion(imageFaceDto);
             }
 
-            if(emotionsMap.entrySet().size() > 0) storeCache(emotionsMap, emotionCacheDir);
+            if(emotionsMap.entrySet().size() > 0) cacheUtils.storeCache(emotionsMap, emotionCacheDir);
 
             log.info("Emotions cache size = " + emotionsMap.size() + "; " + "Photo with filtered emotion count = " + listOfCachedId.size());
         } catch (Exception e){

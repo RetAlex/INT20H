@@ -5,6 +5,7 @@ import INT20H.task.model.dto.PhotoSizeDto;
 import INT20H.task.model.dto.RequestPhotoDto;
 import INT20H.task.services.interfaces.FlickrApiService;
 import INT20H.task.services.interfaces.FlickrService;
+import INT20H.task.utils.CacheUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.flickr4java.flickr.photos.Photo;
 import com.flickr4java.flickr.photos.PhotoList;
@@ -13,12 +14,12 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static INT20H.task.resources.configuration.FlickrConfig.*;
-import static INT20H.task.utils.CacheUtils.*;
+import static INT20H.task.resources.configuration.FlickrConfig.i20HphotosetId_;
+import static INT20H.task.resources.configuration.FlickrConfig.tag_;
+import static INT20H.task.utils.CacheUtils.photoCacheDir;
 import static INT20H.task.utils.Pagination.getByPage;
 
 @Service
@@ -28,10 +29,12 @@ public class FlickrServiceImpl implements FlickrService {
     private List<PhotoSizeDto> photoCache;
     private Set<String> setOfCachedPhotoId = new HashSet<>();
     private final FlickrApiService flickrApiService;
+    private final CacheUtils cacheUtils;
 
-    public FlickrServiceImpl(FlickrApiService flickrApiService) {
+    public FlickrServiceImpl(FlickrApiService flickrApiService, CacheUtils cacheUtils) {
         this.flickrApiService = flickrApiService;
-        photoCache = (List<PhotoSizeDto>) loadCacheFromFile(photoCacheDir, new TypeReference<List<PhotoSizeDto>>() {});
+        this.cacheUtils = cacheUtils;
+        photoCache = (List<PhotoSizeDto>) this.cacheUtils.loadCacheFromFile(photoCacheDir, new TypeReference<List<PhotoSizeDto>>() {});
         if(photoCache == null) photoCache = new ArrayList<>();
         log.info("Successfully read list of " + photoCache.size() + " elements from file!");
     }
@@ -46,12 +49,13 @@ public class FlickrServiceImpl implements FlickrService {
 
             RequestPhotoDto searchPhotoDto = new RequestPhotoDto(i20HphotosetId_, tag_);
             getUrlByAlbumIdAndTag(searchPhotoDto);
-            storeCache(photoCache, photoCacheDir);
+            cacheUtils.storeCache(photoCache, photoCacheDir);
             log.info("Cache size = " + photoCache.size());
         } catch (Exception e){
             e.printStackTrace();
         }
     }
+
     @Override
     public ImagesDto getAllImages(int page) {
         return new ImagesDto(photoCache.size(), getByPage(page, photoCache));

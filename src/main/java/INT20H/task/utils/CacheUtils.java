@@ -3,6 +3,7 @@ package INT20H.task.utils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,12 +13,13 @@ import java.util.Arrays;
 import static INT20H.task.resources.configuration.FlickrConfig.rootCacheDir;
 
 @Log4j2
+@Service
 public class CacheUtils {
 
     public final static  String photoCacheDir = "photoCache";
     public final static  String emotionCacheDir = "emotionCache";
 
-    public static Object loadCacheFromFile(String cacheDir, TypeReference typeReference) {
+    public Object loadCacheFromFile(String cacheDir, TypeReference typeReference) {
         try {
             File dir = new File(rootCacheDir + cacheDir);
             String[] list = dir.list();
@@ -32,7 +34,7 @@ public class CacheUtils {
         return null;
     }
 
-    public static void storeCache(Object cache, String cacheDir) {
+    public void storeCache(Object cache, String cacheDir) {
         try {
             File dir = new File(rootCacheDir + cacheDir);
             if (!dir.exists() && !dir.mkdirs())
